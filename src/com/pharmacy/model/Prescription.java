@@ -18,43 +18,33 @@ public class Prescription {
     public String[] instructions;
     public int instructionCount;
     public boolean isVerified;
-    public String presImgPath; // Path to uploaded prescription image
+    public String presImgPath;
     public String verifyComments;
     
-    // Simple medicine dosage information
+
     public class MedicineDosage {
         public Medicine medicine;
-        public String dosage; // Example: "1 pill 2 times daily"
-        public int days; // How many days to take
-        public String notes;
-        
-        // Constructor with basic info
+        public String dosage;
+        public int days;
+
         public MedicineDosage(Medicine medicine, String dosage, int days) {
             this.medicine = medicine;
             this.dosage = dosage;
             this.days = days;
-            this.notes = "";
         }
         
-        // Constructor with all info
         public MedicineDosage(Medicine medicine, String dosage, int days, String notes) {
             this.medicine = medicine;
             this.dosage = dosage;
             this.days = days;
-            this.notes = notes;
         }
         
-        // Simple string representation
         public String toString() {
             String result = medicine.getMedName() + " - " + dosage + " for " + days + " days";
-            if (!notes.equals("")) {
-                result = result + ". Notes: " + notes;
-            }
             return result;
         }
     }
     
-    // Simple medication class for when prescriptions are uploaded as images
     public static class Medication implements Serializable {
         public String name;
         public String dosage;
@@ -62,7 +52,6 @@ public class Prescription {
         public String duration;
         public String instructions;
         
-        // Empty constructor
         public Medication() {
             name = "";
             dosage = "";
@@ -71,7 +60,6 @@ public class Prescription {
             instructions = "";
         }
         
-        // Full constructor
         public Medication(String name, String dosage, String frequency, String duration, String instructions) {
             this.name = name;
             this.dosage = dosage;
@@ -86,7 +74,6 @@ public class Prescription {
     public Medication[] medications;
     public int medicationCount;
     
-    // Simple constructor
     public Prescription() {
         prescID = UUID.randomUUID().toString();
         custID = "";
@@ -109,7 +96,6 @@ public class Prescription {
         medicationCount = 0;
     }
     
-    // Constructor with basic information
     public Prescription(String custID, String docID, String diagnosis) {
         prescID = UUID.randomUUID().toString();
         this.custID = custID;
@@ -118,7 +104,6 @@ public class Prescription {
         doctorName = "";
         issueDate = new Date();
         
-        // Set expiry date to 30 days from now
         expiryDate = new Date();
         expiryDate.setTime(issueDate.getTime() + 30L * 24 * 60 * 60 * 1000);
         
@@ -136,7 +121,6 @@ public class Prescription {
         medicationCount = 0;
     }
     
-    // Getter and setter methods
     public String getPrescriptionId() {
         return prescID;
     }
@@ -220,27 +204,23 @@ public class Prescription {
     public String getVerificationComments() {
         return verifyComments;
     }
-    
+
     public void setVerificationComments(String comments) {
         this.verifyComments = comments;
     }
 
-    // Check if prescription is still valid
     public boolean isValid() {
         Date today = new Date();
         return isVerified && today.before(expiryDate);
     }
     
-    // Add a medicine to the prescription
     public void addMedicine(Medicine medicine) {
-        // Check if medicine is already in the prescription
         for (int i = 0; i < medicineCount; i++) {
             if (medicines[i] == medicine) {
-                return; // Medicine already exists
+                return;
             }
         }
         
-        // Make array bigger if needed
         if (medicineCount >= medicines.length) {
             Medicine[] newArray = new Medicine[medicines.length * 2];
             for (int i = 0; i < medicineCount; i++) {
@@ -253,9 +233,7 @@ public class Prescription {
         medicineCount++;
     }
     
-    // Add a medication from uploaded prescription
     public void addMedication(Medication medication) {
-        // Make array bigger if needed
         if (medicationCount >= medications.length) {
             Medication[] newArray = new Medication[medications.length * 2];
             for (int i = 0; i < medicationCount; i++) {
@@ -268,15 +246,15 @@ public class Prescription {
         medicationCount++;
     }
     
-    // Add medicine with dosage info
     public void addMedicineWithDosage(Medicine medicine, String dosage, int days) {
-        // Add to medicines list first
         addMedicine(medicine);
         
-        // Create dosage object
         MedicineDosage medicineDosage = new MedicineDosage(medicine, dosage, days);
-        
-        // Make array bigger if needed
+
+        increaseDosageArray(medicineDosage);
+    }
+
+    private void increaseDosageArray(MedicineDosage medicineDosage) {
         if (medicineDosageCount >= medicinesDosage.length) {
             MedicineDosage[] newArray = new MedicineDosage[medicinesDosage.length * 2];
             for (int i = 0; i < medicineDosageCount; i++) {
@@ -284,36 +262,21 @@ public class Prescription {
             }
             medicinesDosage = newArray;
         }
-        
+
         medicinesDosage[medicineDosageCount] = medicineDosage;
         medicineDosageCount++;
     }
-    
-    // Add medicine with dosage and special notes
+
     public void addMedicineWithDosage(Medicine medicine, String dosage, int days, String notes) {
-        // Add to medicines list first
         addMedicine(medicine);
         
-        // Create dosage object with notes
         MedicineDosage medicineDosage = new MedicineDosage(medicine, dosage, days, notes);
-        
-        // Make array bigger if needed
-        if (medicineDosageCount >= medicinesDosage.length) {
-            MedicineDosage[] newArray = new MedicineDosage[medicinesDosage.length * 2];
-            for (int i = 0; i < medicineDosageCount; i++) {
-                newArray[i] = medicinesDosage[i];
-            }
-            medicinesDosage = newArray;
-        }
-        
-        medicinesDosage[medicineDosageCount] = medicineDosage;
-        medicineDosageCount++;
+
+        increaseDosageArray(medicineDosage);
     }
-    
-    // Add instructions to the prescription
+
     public void addInstructions(String... newInstructions) {
         for (String instruction : newInstructions) {
-            // Make array bigger if needed
             if (instructionCount >= instructions.length) {
                 String[] newArray = new String[instructions.length * 2];
                 for (int i = 0; i < instructionCount; i++) {
@@ -327,19 +290,16 @@ public class Prescription {
         }
     }
     
-    // Mark prescription as verified
     public void verify(String comments) {
         isVerified = true;
         verifyComments = comments;
     }
     
-    // Check if prescription is expired
     public boolean isExpired() {
         Date today = new Date();
         return today.after(expiryDate);
     }
     
-    // Check if prescription contains a specific medicine
     public boolean containsMedicine(String medicineId) {
         for (int i = 0; i < medicineCount; i++) {
             if (medicines[i].getID().equals(medicineId)) {
@@ -349,7 +309,6 @@ public class Prescription {
         return false;
     }
     
-    // Get a clean array of just the medicines (no empty slots)
     public Medicine[] getMedicinesArray() {
         Medicine[] result = new Medicine[medicineCount];
         for (int i = 0; i < medicineCount; i++) {
@@ -358,7 +317,6 @@ public class Prescription {
         return result;
     }
     
-    // Get a clean array of just the instructions (no empty slots)
     public String[] getInstructionsArray() {
         String[] result = new String[instructionCount];
         for (int i = 0; i < instructionCount; i++) {
@@ -367,7 +325,6 @@ public class Prescription {
         return result;
     }
     
-    // Get a clean array of just the medicine dosages (no empty slots)
     public MedicineDosage[] getMedicineDosagesArray() {
         MedicineDosage[] result = new MedicineDosage[medicineDosageCount];
         for (int i = 0; i < medicineDosageCount; i++) {
@@ -376,7 +333,6 @@ public class Prescription {
         return result;
     }
     
-    // Get a clean array of just the medications (no empty slots)
     public Medication[] getMedicationsArray() {
         Medication[] result = new Medication[medicationCount];
         for (int i = 0; i < medicationCount; i++) {
@@ -385,7 +341,6 @@ public class Prescription {
         return result;
     }
     
-    // Simple string representation
     public String toString() {
         String output = "";
         output = output + "Prescription #" + prescID + "\n";
