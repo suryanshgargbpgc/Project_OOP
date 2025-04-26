@@ -258,9 +258,8 @@ public class Main {
         }
         
         // Show totals
-        System.out.println("\nSubtotal: $" + String.format("%.2f", order.getSubTotal()));
-        System.out.println("Shipping: $" + String.format("%.2f", order.getShipCost()));
-        System.out.println("Total: $" + String.format("%.2f", order.getTotal()));
+        System.out.println("\nSubtotal: Rs" + String.format("%.2f", order.getSubTotal()));
+        System.out.println("Total: Rs" + String.format("%.2f", order.getTotal()));
         
         // Process payment (in real app would collect card info)
         order.pay("CREDIT_CARD");
