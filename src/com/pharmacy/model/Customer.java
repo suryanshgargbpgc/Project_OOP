@@ -1,196 +1,85 @@
 package com.pharmacy.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
- * Customer class represents users who can order medicines, upload prescriptions,
- * and have medical appointments
+ * This class is for customers who buy medicines
+ * Written by: Student
+ * Date: 11/10/2023
  */
 public class Customer extends User {
-    private List<Prescription> prescriptions;
-    private List<Order> orders;
-    private boolean isPremiumMember;
-    private List<String> healthConditions;
-    private List<String> allergies;
+    public Prescription[] rxList;
+    public int rxCount;
     
-    // Static nested class for managing customer loyalty points
-    public static class LoyaltyProgram {
-        private int points;
-        private String tier; // Bronze, Silver, Gold, Platinum
-        
-        public LoyaltyProgram() {
-            this.points = 0;
-            this.tier = "Bronze";
-        }
-        
-        public void addPoints(int pointsToAdd) {
-            this.points += pointsToAdd;
-            updateTier();
-        }
-        
-        public void usePoints(int pointsToUse) {
-            if (pointsToUse <= points) {
-                this.points -= pointsToUse;
-                updateTier();
-            }
-        }
-        
-        private void updateTier() {
-            if (points < 1000) {
-                tier = "Bronze";
-            } else if (points < 5000) {
-                tier = "Silver";
-            } else if (points < 10000) {
-                tier = "Gold";
-            } else {
-                tier = "Platinum";
-            }
-        }
-        
-        public int getDiscount() {
-            switch (tier) {
-                case "Bronze": return 0;
-                case "Silver": return 5;
-                case "Gold": return 10;
-                case "Platinum": return 15;
-                default: return 0;
-            }
-        }
-        
-        // Getters and setters
-        public int getPoints() {
-            return points;
-        }
-        
-        public String getTier() {
-            return tier;
-        }
-    }
-    
-    private LoyaltyProgram loyaltyProgram;
-    
-    // Default constructor
+    // Empty constructor
     public Customer() {
         super();
-        this.prescriptions = new ArrayList<>();
-        this.orders = new ArrayList<>();
-        this.isPremiumMember = false;
-        this.healthConditions = new ArrayList<>();
-        this.allergies = new ArrayList<>();
-        this.loyaltyProgram = new LoyaltyProgram();
+        this.rxList = new Prescription[10]; // Start with 10 slots
+        this.rxCount = 0;
     }
     
-    // Constructor with basic user information
-    public Customer(String userId, String name, String email, String phoneNumber) {
-        super(userId, name, email, phoneNumber);
-        this.prescriptions = new ArrayList<>();
-        this.orders = new ArrayList<>();
-        this.isPremiumMember = false;
-        this.healthConditions = new ArrayList<>();
-        this.allergies = new ArrayList<>();
-        this.loyaltyProgram = new LoyaltyProgram();
+    // Basic constructor with info
+    public Customer(String id, String name, String email, String phone) {
+        super(id, name, email, phone);
+        this.rxList = new Prescription[10]; // Start with 10 slots
+        this.rxCount = 0;
     }
     
-    // Full constructor
-    public Customer(String userId, String name, String email, String phoneNumber, 
-                   String address, Date dateOfBirth, boolean isPremiumMember) {
-        super(userId, name, email, phoneNumber, address, dateOfBirth);
-        this.prescriptions = new ArrayList<>();
-        this.orders = new ArrayList<>();
-        this.isPremiumMember = isPremiumMember;
-        this.healthConditions = new ArrayList<>();
-        this.allergies = new ArrayList<>();
-        this.loyaltyProgram = new LoyaltyProgram();
-    }
-    
-    // Implementation of abstract method from User
+    // Tell what kind of user this is
     @Override
     public String getUserType() {
         return "Customer";
     }
     
-    // Method to add a new prescription
-    public void addPrescription(Prescription prescription) {
-        this.prescriptions.add(prescription);
-    }
-    
-    // Method to add a new order
-    public void addOrder(Order order) {
-        this.orders.add(order);
-        // Add loyalty points based on order amount
-        this.loyaltyProgram.addPoints((int) (order.getTotalAmount() * 10));
-    }
-    
-    // Vararg method to add health conditions
-    public void addHealthConditions(String... conditions) {
-        for (String condition : conditions) {
-            this.healthConditions.add(condition);
+    // Add a prescription to customer
+    public void addRx(Prescription rx) {
+        // Check if we need more space
+        if (rxCount >= rxList.length) {
+            // Make bigger array
+            Prescription[] newList = new Prescription[rxList.length * 2];
+            
+            // Copy all old prescriptions
+            for (int i = 0; i < rxList.length; i++) {
+                newList[i] = rxList[i];
+            }
+            
+            // Use the new bigger array
+            rxList = newList;
         }
+        
+        // Add the new prescription
+        this.rxList[rxCount] = rx;
+        rxCount = rxCount + 1;
     }
     
-    // Vararg method to add allergies
-    public void addAllergies(String... newAllergies) {
-        for (String allergy : newAllergies) {
-            this.allergies.add(allergy);
+    // Get all prescriptions
+    public Prescription[] getRxList() {
+        // Make new array with just the filled slots
+        Prescription[] result = new Prescription[rxCount];
+        
+        // Copy only the real prescriptions
+        for (int i = 0; i < rxCount; i++) {
+            result[i] = rxList[i];
         }
+        
+        return result;
+    }
+
+    // Set all prescriptions at once
+    public void setRxList(Prescription[] rxArray) {
+        this.rxList = rxArray;
+        this.rxCount = rxArray.length;
     }
     
-    // Getters and Setters
-    public List<Prescription> getPrescriptions() {
-        return prescriptions;
-    }
-
-    public void setPrescriptions(List<Prescription> prescriptions) {
-        this.prescriptions = prescriptions;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
-
-    public boolean isPremiumMember() {
-        return isPremiumMember;
-    }
-
-    public void setPremiumMember(boolean premiumMember) {
-        isPremiumMember = premiumMember;
-    }
-
-    public List<String> getHealthConditions() {
-        return healthConditions;
-    }
-
-    public void setHealthConditions(List<String> healthConditions) {
-        this.healthConditions = healthConditions;
-    }
-
-    public List<String> getAllergies() {
-        return allergies;
-    }
-
-    public void setAllergies(List<String> allergies) {
-        this.allergies = allergies;
-    }
-    
-    public LoyaltyProgram getLoyaltyProgram() {
-        return loyaltyProgram;
-    }
-    
-    @Override
+    // Print customer information
     public String toString() {
-        return "Customer{" +
-                "userId='" + getUserId() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", prescriptions=" + prescriptions.size() +
-                ", orders=" + orders.size() +
-                ", isPremiumMember=" + isPremiumMember +
-                ", loyaltyTier=" + loyaltyProgram.getTier() +
-                '}';
+        String output = "";
+        output = output + "Customer ID: " + getUserId() + "\n";
+        output = output + "Name: " + getName() + "\n";
+        output = output + "Email: " + getEmail() + "\n";
+        output = output + "Phone: " + getPhoneNumber() + "\n"; 
+        output = output + "Address: " + getAddress() + "\n";
+        output = output + "Number of prescriptions: " + rxCount;
+        return output;
     }
 } 

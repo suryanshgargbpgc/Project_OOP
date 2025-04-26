@@ -3,121 +3,110 @@ package com.pharmacy.model;
 import java.util.Date;
 
 /**
- * Abstract User class that serves as the base for all system users
+ * Base user class for the pharmacy system
+ * Written by: Student
+ * Date: 11/10/2023
  */
 public abstract class User {
-    private String userId;
-    private String name;
-    private String email;
-    private String phoneNumber;
-    private String address;
-    private Date dateOfBirth;
+    // Public variables for easy access
+    public String userID;
+    public String userName;
+    public String userEmail;
+    public String userPhone;
+    public String userAddress;
+    public Date userBirth;
     
-    // Default constructor
+    // Empty constructor
     public User() {
-        this.userId = "";
-        this.name = "";
-        this.email = "";
-        this.phoneNumber = "";
-        this.address = "";
-        this.dateOfBirth = new Date();
+        this.userID = "";
+        this.userName = "";
+        this.userEmail = "";
+        this.userPhone = "";
+        this.userAddress = "";
+        this.userBirth = new Date();
     }
     
-    // Parameterized constructor
-    public User(String userId, String name, String email, String phoneNumber) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = "";
-        this.dateOfBirth = new Date();
+    // Basic constructor
+    public User(String id, String name, String email, String phone) {
+        this.userID = id;
+        this.userName = name;
+        this.userEmail = email;
+        this.userPhone = phone;
+        this.userAddress = "";
+        this.userBirth = new Date();
     }
     
-    // Overloaded constructor with more parameters
-    public User(String userId, String name, String email, String phoneNumber, String address, Date dateOfBirth) {
-        this.userId = userId;
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.dateOfBirth = dateOfBirth;
+    // Full constructor with all info
+    public User(String id, String name, String email, String phone, String address, Date birth) {
+        this.userID = id;
+        this.userName = name;
+        this.userEmail = email;
+        this.userPhone = phone;
+        this.userAddress = address;
+        this.userBirth = birth;
     }
     
-    // Abstract method to be implemented by subclasses
+    // Each user type must implement this
     public abstract String getUserType();
     
-    // Method to update user profile
-    public void updateProfile(String name, String email, String phoneNumber, String address) {
-        this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-    }
-    
-    // Overloaded method to update only contact information
-    public void updateProfile(String email, String phoneNumber) {
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-    }
-    
-    // Getters and Setters
+    // Basic get/set methods with simple names
     public String getUserId() {
-        return userId;
+        return userID;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUserId(String id) {
+        this.userID = id;
     }
 
     public String getName() {
-        return name;
+        return userName;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.userName = name;
     }
 
     public String getEmail() {
-        return email;
+        return userEmail;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.userEmail = email;
     }
 
     public String getPhoneNumber() {
-        return phoneNumber;
+        return userPhone;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setPhoneNumber(String phone) {
+        this.userPhone = phone;
     }
 
     public String getAddress() {
-        return address;
+        return userAddress;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.userAddress = address;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
+    public Date getBirthDate() {
+        return userBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public void setBirthDate(Date birth) {
+        this.userBirth = birth;
     }
     
-    @Override
+    // Print user information
     public String toString() {
-        return "User{" +
-                "userId='" + userId + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", address='" + address + '\'' +
-                ", dateOfBirth=" + dateOfBirth +
-                '}';
+        String output = "";
+        output = output + "User Information:\n";
+        output = output + "ID: " + userID + "\n";
+        output = output + "Name: " + userName + "\n";
+        output = output + "Email: " + userEmail + "\n";
+        output = output + "Phone: " + userPhone + "\n";
+        output = output + "Address: " + userAddress;
+        return output;
     }
 } 

@@ -2,8 +2,7 @@ package com.pharmacy.util;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,40 +52,42 @@ public class FileHandler {
     }
     
     /**
-     * Save a list of objects to a file using serialization
+     * Save an array of objects to a file using serialization
      * 
-     * @param <T> Type of objects in the list
-     * @param objects The list of objects to save
+     * @param <T> Type of objects in the array
+     * @param objects The array of objects to save
      * @param filePath The path to save the file to
      * @return true if saved successfully, false otherwise
      */
-    public static <T extends Serializable> boolean saveListToFile(List<T> objects, String filePath) {
+    public static <T extends Serializable> boolean saveArrayToFile(T[] objects, String filePath) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
             oos.writeObject(objects);
-            logger.info("List saved to file: " + filePath);
+            logger.info("Array saved to file: " + filePath);
             return true;
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error saving list to file: " + e.getMessage(), e);
+            logger.log(Level.SEVERE, "Error saving array to file: " + e.getMessage(), e);
             return false;
         }
     }
     
     /**
-     * Load a list of objects from a file using deserialization
+     * Load an array of objects from a file using deserialization
      * 
-     * @param <T> Type of objects in the list
+     * @param <T> Type of objects in the array
      * @param filePath The path to load the file from
-     * @return The loaded list, or an empty list if loading failed
+     * @param componentType The class of the component type
+     * @return The loaded array, or an empty array if loading failed
      */
     @SuppressWarnings("unchecked")
-    public static <T extends Serializable> List<T> loadListFromFile(String filePath) {
+    public static <T extends Serializable> T[] loadArrayFromFile(String filePath, Class<T> componentType) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            List<T> objects = (List<T>) ois.readObject();
-            logger.info("List loaded from file: " + filePath);
+            T[] objects = (T[]) ois.readObject();
+            logger.info("Array loaded from file: " + filePath);
             return objects;
         } catch (IOException | ClassNotFoundException e) {
-            logger.log(Level.SEVERE, "Error loading list from file: " + e.getMessage(), e);
-            return new ArrayList<>();
+            logger.log(Level.SEVERE, "Error loading array from file: " + e.getMessage(), e);
+            // Create empty array of the right type
+            return (T[]) java.lang.reflect.Array.newInstance(componentType, 0);
         }
     }
     

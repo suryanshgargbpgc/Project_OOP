@@ -1,164 +1,110 @@
 package com.pharmacy.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
- * Doctor class represents medical professionals who can issue prescriptions
- * and provide teleconsultation services
+ * This class is for doctors who can write prescriptions
+ * Written by: Student
+ * Date: 11/10/2023
  */
 public class Doctor extends User {
-    private String licenseNumber;
-    private String specialization;
-    private boolean isAvailableForTeleconsultation;
-    private String qualification;
-    private int yearsOfExperience;
-    private List<String> availableTimeSlots;
-    private double consultationFee;
+    // Public variables to store doctor information
+    public String docLicense;
+    public String docType;
+    public double docFee;
     
-    // Default constructor
+    // Empty constructor
     public Doctor() {
         super();
-        this.licenseNumber = "";
-        this.specialization = "";
-        this.isAvailableForTeleconsultation = false;
-        this.qualification = "";
-        this.yearsOfExperience = 0;
-        this.availableTimeSlots = new ArrayList<>();
-        this.consultationFee = 0.0;
+        this.docLicense = "";
+        this.docType = "";
+        this.docFee = 0.0;
     }
     
-    // Constructor with basic information
-    public Doctor(String userId, String name, String email, String phoneNumber,
-                 String licenseNumber, String specialization) {
-        super(userId, name, email, phoneNumber);
-        this.licenseNumber = licenseNumber;
-        this.specialization = specialization;
-        this.isAvailableForTeleconsultation = false;
-        this.qualification = "";
-        this.yearsOfExperience = 0;
-        this.availableTimeSlots = new ArrayList<>();
-        this.consultationFee = 0.0;
+    // Basic constructor with information
+    public Doctor(String id, String name, String email, String phone,
+                 String license, String type) {
+        super(id, name, email, phone);
+        this.docLicense = license;
+        this.docType = type;
+        this.docFee = 0.0;
     }
     
-    // Full constructor
-    public Doctor(String userId, String name, String email, String phoneNumber,
-                 String address, Date dateOfBirth, String licenseNumber,
-                 String specialization, boolean isAvailableForTeleconsultation,
-                 String qualification, int yearsOfExperience, double consultationFee) {
-        super(userId, name, email, phoneNumber, address, dateOfBirth);
-        this.licenseNumber = licenseNumber;
-        this.specialization = specialization;
-        this.isAvailableForTeleconsultation = isAvailableForTeleconsultation;
-        this.qualification = qualification;
-        this.yearsOfExperience = yearsOfExperience;
-        this.availableTimeSlots = new ArrayList<>();
-        this.consultationFee = consultationFee;
-    }
-    
-    // Implementation of abstract method from User
+    // Tell what kind of user this is
     @Override
     public String getUserType() {
         return "Doctor";
     }
     
-    // Method to issue a prescription
-    public Prescription issuePrescription(Customer customer, String diagnosis, Medicine... medicines) {
-        Prescription prescription = new Prescription();
-        prescription.setDoctorId(this.getUserId());
-        prescription.setCustomerId(customer.getUserId());
-        prescription.setDoctorName(this.getName());
-        prescription.setPatientName(customer.getName());
-        prescription.setDiagnosis(diagnosis);
-        prescription.setIssueDate(new Date());
+    // Create a prescription for a patient
+    public Prescription makePrescription(Customer patient, String problem, Medicine[] meds) {
+        // Make a new prescription
+        Prescription rx = new Prescription();
         
-        // Add a default expiry date (30 days from now)
-        Date expiryDate = new Date();
-        expiryDate.setTime(expiryDate.getTime() + 30L * 24 * 60 * 60 * 1000);
-        prescription.setExpiryDate(expiryDate);
+        // Set all the details
+        rx.setDoctorId(this.getUserId());
+        rx.setCustomerId(patient.getUserId());
+        rx.setDoctorName(this.getName());
+        rx.setPatientName(patient.getName());
+        rx.setDiagnosis(problem);
         
-        // Add medicines to prescription
-        for (Medicine medicine : medicines) {
-            prescription.addMedicine(medicine);
+        // Set today's date
+        Date today = new Date();
+        rx.setIssueDate(today);
+        
+        // Set expiry date to 30 days from now
+        Date endDate = new Date();
+        // Add 30 days in milliseconds
+        long thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+        endDate.setTime(endDate.getTime() + thirtyDaysMs);
+        rx.setExpiryDate(endDate);
+        
+        // Add all medicines to the prescription
+        for (int i = 0; i < meds.length; i++) {
+            Medicine med = meds[i];
+            rx.addMedicine(med);
         }
         
-        return prescription;
+        return rx;
     }
     
-    // Vararg method to add available time slots
-    public void addTimeSlots(String... slots) {
-        for (String slot : slots) {
-            this.availableTimeSlots.add(slot);
+    // Get and set methods with simple names
+    public String getLicense() {
+        return docLicense;
+    }
+
+    public void setLicense(String license) {
+        this.docLicense = license;
+    }
+
+    public String getType() {
+        return docType;
+    }
+
+    public void setType(String type) {
+        this.docType = type;
+    }
+
+    public double getFee() {
+        return docFee;
+    }
+
+    public void setFee(double fee) {
+        if (fee >= 0) {
+            this.docFee = fee;
+        } else {
+            this.docFee = 0;
         }
     }
     
-    // Getters and Setters
-    public String getLicenseNumber() {
-        return licenseNumber;
-    }
-
-    public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
-    }
-
-    public String getSpecialization() {
-        return specialization;
-    }
-
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
-    }
-
-    public boolean isAvailableForTeleconsultation() {
-        return isAvailableForTeleconsultation;
-    }
-
-    public void setAvailableForTeleconsultation(boolean availableForTeleconsultation) {
-        isAvailableForTeleconsultation = availableForTeleconsultation;
-    }
-
-    public String getQualification() {
-        return qualification;
-    }
-
-    public void setQualification(String qualification) {
-        this.qualification = qualification;
-    }
-
-    public int getYearsOfExperience() {
-        return yearsOfExperience;
-    }
-
-    public void setYearsOfExperience(int yearsOfExperience) {
-        this.yearsOfExperience = yearsOfExperience;
-    }
-
-    public List<String> getAvailableTimeSlots() {
-        return availableTimeSlots;
-    }
-
-    public void setAvailableTimeSlots(List<String> availableTimeSlots) {
-        this.availableTimeSlots = availableTimeSlots;
-    }
-
-    public double getConsultationFee() {
-        return consultationFee;
-    }
-
-    public void setConsultationFee(double consultationFee) {
-        this.consultationFee = consultationFee;
-    }
-    
-    @Override
+    // Print doctor information
     public String toString() {
-        return "Doctor{" +
-                "userId='" + getUserId() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", licenseNumber='" + licenseNumber + '\'' +
-                ", specialization='" + specialization + '\'' +
-                ", isAvailableForTeleconsultation=" + isAvailableForTeleconsultation +
-                ", yearsOfExperience=" + yearsOfExperience +
-                '}';
+        String output = "";
+        output = output + "Doctor ID: " + getUserId() + "\n";
+        output = output + "Name: " + getName() + "\n";
+        output = output + "License: " + docLicense + "\n";
+        output = output + "Specialization: " + docType + "\n";
+        output = output + "Fee: $" + docFee;
+        return output;
     }
 } 

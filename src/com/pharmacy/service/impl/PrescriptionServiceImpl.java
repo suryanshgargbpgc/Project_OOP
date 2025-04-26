@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 
 /**
  * Implementation of PrescriptionService interface
+ * Updated by: Student
+ * Date: 11/10/2023
  */
 public class PrescriptionServiceImpl implements PrescriptionService {
     
@@ -71,7 +73,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             fis.close();
             
             // Store the file path (in a real app, this would be a URL to the stored image)
-            prescription.setPrescriptionImagePath(prescriptionFile.getAbsolutePath());
+            prescription.setImagePath(prescriptionFile.getAbsolutePath());
             
             // Add the prescription to our storage
             prescriptions.put(prescription.getPrescriptionId(), prescription);
@@ -252,28 +254,82 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         expiryDate.setTime(expiryDate.getTime() + 30L * 24 * 60 * 60 * 1000);
         prescription.setExpiryDate(expiryDate);
         
-        // Add some sample medications
-        Prescription.Medication medication1 = new Prescription.Medication(
-            "Cetirizine", "10mg", "Once daily", "7 days", "Take in the morning"
-        );
-        Prescription.Medication medication2 = new Prescription.Medication(
-            "Fluticasone", "50mcg", "Twice daily", "14 days", "2 sprays in each nostril"
-        );
+        // Mark as verified
+        prescription.setVerified(true);
+        prescription.setVerificationComments("Verified by system");
         
-        prescription.addMedication(medication1);
-        prescription.addMedication(medication2);
+        // Create sample medicines
+        Medicine med1 = new Medicine("MED1001", "Loratadine", 12.99, false);
+        med1.setInfo("Antihistamine for allergy relief");
+        med1.setType("Allergy");
+        med1.setCount(50);
+        
+        Medicine med2 = new Medicine("MED1002", "Fluticasone", 24.99, true);
+        med2.setInfo("Nasal spray for allergies");
+        med2.setType("Allergy");
+        med2.setCount(30);
+        
+        // Add medicines to prescription
+        prescription.addMedicine(med1);
+        prescription.addMedicine(med2);
+        
+        // Add dosage information
+        prescription.addMedicineWithDosage(med1, "10mg once daily", 30);
+        prescription.addMedicineWithDosage(med2, "2 sprays each nostril daily", 30, "Use in the morning");
         
         // Add instructions
         prescription.addInstructions(
-            "Avoid alcohol while taking this medication",
+            "Take medications as directed",
+            "Avoid known allergens",
             "Stay hydrated",
-            "Return for follow-up if symptoms don't improve in 7 days"
+            "Call if symptoms worsen"
         );
-        
-        // Verify the prescription
-        prescription.setVerified(true);
         
         // Store the prescription
         prescriptions.put(prescription.getPrescriptionId(), prescription);
+        
+        // Create another sample prescription
+        Prescription prescription2 = new Prescription();
+        prescription2.setPrescriptionId("RX123457");
+        prescription2.setCustomerId("CUST100");
+        prescription2.setDoctorId("DOC101");
+        prescription2.setPatientName("John Smith");
+        prescription2.setDoctorName("Dr. Robert Chen");
+        prescription2.setDiagnosis("Mild Hypertension");
+        prescription2.setIssueDate(new Date());
+        
+        // Set expiry date (90 days from now for chronic condition)
+        Date expiryDate2 = new Date();
+        expiryDate2.setTime(expiryDate2.getTime() + 90L * 24 * 60 * 60 * 1000);
+        prescription2.setExpiryDate(expiryDate2);
+        
+        // Mark as verified
+        prescription2.setVerified(true);
+        prescription2.setVerificationComments("Verified by pharmacist");
+        
+        // Create sample medicine
+        Medicine med3 = new Medicine("MED1003", "Lisinopril", 18.50, true);
+        med3.setInfo("ACE inhibitor for blood pressure");
+        med3.setType("Cardiovascular");
+        med3.setCount(90);
+        
+        // Add medicine to prescription
+        prescription2.addMedicine(med3);
+        
+        // Add dosage information
+        prescription2.addMedicineWithDosage(med3, "10mg once daily with food", 90, "Morning preferred");
+        
+        // Add instructions
+        prescription2.addInstructions(
+            "Take medication daily with food",
+            "Monitor blood pressure regularly",
+            "Maintain low sodium diet",
+            "Exercise moderately for 30 minutes daily"
+        );
+        
+        // Store the prescription
+        prescriptions.put(prescription2.getPrescriptionId(), prescription2);
+        
+        logger.info("Demo data initialized with " + prescriptions.size() + " prescriptions");
     }
 } 
