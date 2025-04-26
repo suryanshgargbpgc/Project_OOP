@@ -4,7 +4,6 @@ import com.pharmacy.model.Doctor;
 import com.pharmacy.model.Customer;
 import com.pharmacy.model.Prescription;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Interface for teleconsultation services
@@ -44,18 +43,18 @@ public interface TeleconsultationService {
      * Get available doctors for teleconsultation
      * 
      * @param specialization Optional specialization filter
-     * @return List of available doctors
+     * @return Array of available doctors
      */
-    List<Doctor> getAvailableDoctors(String specialization);
+    Doctor[] getAvailableDoctors(String specialization);
     
     /**
      * Get available time slots for a doctor
      * 
      * @param doctorId The ID of the doctor
      * @param date The date to check availability
-     * @return List of available time slots
+     * @return Array of available time slots
      */
-    List<String> getAvailableTimeSlots(String doctorId, Date date);
+    String[] getAvailableTimeSlots(String doctorId, Date date);
     
     /**
      * Start a teleconsultation session
@@ -80,26 +79,26 @@ public interface TeleconsultationService {
      * @param doctorId The ID of the doctor
      * @param customerId The ID of the customer
      * @param diagnosis The diagnosis
-     * @param medicineIds List of medicine IDs to prescribe
+     * @param medicineIds Array of medicine IDs to prescribe
      * @return The generated prescription
      */
-    Prescription generatePrescription(String doctorId, String customerId, String diagnosis, List<String> medicineIds);
+    Prescription generatePrescription(String doctorId, String customerId, String diagnosis, String[] medicineIds);
     
     /**
      * Get consultation history for a customer
      * 
      * @param customerId The ID of the customer
-     * @return List of past consultation details
+     * @return Array of past consultation details
      */
-    List<Object> getConsultationHistory(String customerId);
+    Object[] getConsultationHistory(String customerId);
     
     /**
      * Get consultation history for a doctor
      * 
      * @param doctorId The ID of the doctor
-     * @return List of past consultation details
+     * @return Array of past consultation details
      */
-    List<Object> getDoctorConsultationHistory(String doctorId);
+    Object[] getDoctorConsultationHistory(String doctorId);
     
     /**
      * Rate a teleconsultation experience

@@ -2,7 +2,6 @@ package com.pharmacy.service;
 
 import com.pharmacy.model.Order;
 import com.pharmacy.model.Medicine;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -70,9 +69,9 @@ public interface OrderService {
      * Get all orders for a customer
      * 
      * @param customerId The ID of the customer
-     * @return List of orders
+     * @return Array of orders
      */
-    List<Order> getCustomerOrders(String customerId);
+    Order[] getCustomerOrders(String customerId);
     
     /**
      * Get order tracking information
@@ -86,9 +85,9 @@ public interface OrderService {
      * Get order history for a customer
      * 
      * @param customerId The ID of the customer
-     * @return List of past orders
+     * @return Array of past orders
      */
-    List<Order> getOrderHistory(String customerId);
+    Order[] getOrderHistory(String customerId);
     
     /**
      * Add items to an existing order
@@ -103,18 +102,18 @@ public interface OrderService {
      * Remove items from an existing order
      * 
      * @param orderId The ID of the order
-     * @param medicineIds List of medicine IDs to remove
+     * @param medicineIds Array of medicine IDs to remove
      * @return The updated order
      */
-    Order removeItemsFromOrder(String orderId, List<String> medicineIds);
+    Order removeItemsFromOrder(String orderId, String[] medicineIds);
     
     /**
      * Get recommended medicines based on order history
      * 
      * @param customerId The ID of the customer
-     * @return List of recommended medicines
+     * @return Array of recommended medicines
      */
-    List<Medicine> getRecommendedMedicines(String customerId);
+    Medicine[] getRecommendedMedicines(String customerId);
     
     /**
      * Auto-reorder medications that need refill

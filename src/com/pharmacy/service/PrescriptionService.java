@@ -3,7 +3,6 @@ package com.pharmacy.service;
 import com.pharmacy.model.Prescription;
 import com.pharmacy.exception.PrescriptionException;
 import java.io.File;
-import java.util.List;
 
 /**
  * Interface for prescription-related services
@@ -44,17 +43,17 @@ public interface PrescriptionService {
      * Get all prescriptions for a customer
      * 
      * @param customerId The ID of the customer
-     * @return List of prescriptions
+     * @return Array of prescriptions
      */
-    List<Prescription> getCustomerPrescriptions(String customerId);
+    Prescription[] getCustomerPrescriptions(String customerId);
     
     /**
      * Get all valid (not expired) prescriptions for a customer
      * 
      * @param customerId The ID of the customer
-     * @return List of valid prescriptions
+     * @return Array of valid prescriptions
      */
-    List<Prescription> getValidPrescriptions(String customerId);
+    Prescription[] getValidPrescriptions(String customerId);
     
     /**
      * Check if a prescription is valid for a specific medicine

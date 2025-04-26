@@ -1,9 +1,7 @@
 package com.pharmacy.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Prescription class represents a medical prescription issued by a doctor
@@ -18,8 +16,10 @@ public class Prescription{
     private Date issueDate;
     private Date expiryDate;
     private String diagnosis;
-    private List<Medicine> medicines;
-    private List<String> instructions;
+    private Medicine[] medicines;
+    private int medicineCount;
+    private String[] instructions;
+    private int instructionCount;
     private boolean isVerified;
     private String prescriptionImagePath; // Path to uploaded prescription image
     private String verificationComments;
@@ -125,8 +125,10 @@ public class Prescription{
         public void setInstructions(String instructions) { this.instructions = instructions; }
     }
     
-    private List<MedicineDosage> medicinesDosage;
-    private List<Medication> medications;
+    private MedicineDosage[] medicinesDosage;
+    private int medicineDosageCount;
+    private Medication[] medications;
+    private int medicationCount;
     
     // Default constructor
     public Prescription() {
@@ -138,13 +140,17 @@ public class Prescription{
         this.issueDate = new Date();
         this.expiryDate = new Date();
         this.diagnosis = "";
-        this.medicines = new ArrayList<>();
-        this.instructions = new ArrayList<>();
+        this.medicines = new Medicine[10]; // Initial capacity
+        this.medicineCount = 0;
+        this.instructions = new String[10]; // Initial capacity
+        this.instructionCount = 0;
         this.isVerified = false;
         this.prescriptionImagePath = "";
         this.verificationComments = "";
-        this.medicinesDosage = new ArrayList<>();
-        this.medications = new ArrayList<>();
+        this.medicinesDosage = new MedicineDosage[10]; // Initial capacity
+        this.medicineDosageCount = 0;
+        this.medications = new Medication[10]; // Initial capacity
+        this.medicationCount = 0;
     }
     
     // Constructor with basic information
@@ -161,13 +167,17 @@ public class Prescription{
         this.expiryDate.setTime(this.expiryDate.getTime() + 30L * 24 * 60 * 60 * 1000);
         
         this.diagnosis = diagnosis;
-        this.medicines = new ArrayList<>();
-        this.instructions = new ArrayList<>();
+        this.medicines = new Medicine[10]; // Initial capacity
+        this.medicineCount = 0;
+        this.instructions = new String[10]; // Initial capacity
+        this.instructionCount = 0;
         this.isVerified = false;
         this.prescriptionImagePath = "";
         this.verificationComments = "";
-        this.medicinesDosage = new ArrayList<>();
-        this.medications = new ArrayList<>();
+        this.medicinesDosage = new MedicineDosage[10]; // Initial capacity
+        this.medicineDosageCount = 0;
+        this.medications = new Medication[10]; // Initial capacity
+        this.medicationCount = 0;
     }
     
     // Check if the prescription is valid (not expired)
@@ -178,40 +188,114 @@ public class Prescription{
     
     // Add a medicine to the prescription
     public void addMedicine(Medicine medicine) {
-        if (!medicines.contains(medicine)) {
-            medicines.add(medicine);
+        // Check if medicine already exists
+        for (int i = 0; i < medicineCount; i++) {
+            if (medicines[i] == medicine) {
+                return;
+            }
         }
+        
+        // Resize array if needed
+        if (medicineCount >= medicines.length) {
+            Medicine[] newMedicines = new Medicine[medicines.length * 2];
+            System.arraycopy(medicines, 0, newMedicines, 0, medicines.length);
+            medicines = newMedicines;
+        }
+        
+        medicines[medicineCount++] = medicine;
     }
     
     // Add a medication from an uploaded prescription
     public void addMedication(Medication medication) {
-        medications.add(medication);
+        // Resize array if needed
+        if (medicationCount >= medications.length) {
+            Medication[] newMedications = new Medication[medications.length * 2];
+            System.arraycopy(medications, 0, newMedications, 0, medications.length);
+            medications = newMedications;
+        }
+        
+        medications[medicationCount++] = medication;
     }
     
     // Add a medicine with dosage information
     public void addMedicineWithDosage(Medicine medicine, String dosage, int duration) {
-        if (!medicines.contains(medicine)) {
-            medicines.add(medicine);
+        // Add to medicines array if not exists
+        boolean exists = false;
+        for (int i = 0; i < medicineCount; i++) {
+            if (medicines[i] == medicine) {
+                exists = true;
+                break;
+            }
+        }
+        
+        if (!exists) {
+            // Resize array if needed
+            if (medicineCount >= medicines.length) {
+                Medicine[] newMedicines = new Medicine[medicines.length * 2];
+                System.arraycopy(medicines, 0, newMedicines, 0, medicines.length);
+                medicines = newMedicines;
+            }
+            
+            medicines[medicineCount++] = medicine;
         }
         
         MedicineDosage medicineDosage = new MedicineDosage(medicine, dosage, duration);
-        medicinesDosage.add(medicineDosage);
+        
+        // Resize array if needed
+        if (medicineDosageCount >= medicinesDosage.length) {
+            MedicineDosage[] newMedicineDosages = new MedicineDosage[medicinesDosage.length * 2];
+            System.arraycopy(medicinesDosage, 0, newMedicineDosages, 0, medicinesDosage.length);
+            medicinesDosage = newMedicineDosages;
+        }
+        
+        medicinesDosage[medicineDosageCount++] = medicineDosage;
     }
     
     // Add a medicine with dosage and special instructions
     public void addMedicineWithDosage(Medicine medicine, String dosage, int duration, String specialInstructions) {
-        if (!medicines.contains(medicine)) {
-            medicines.add(medicine);
+        // Add to medicines array if not exists
+        boolean exists = false;
+        for (int i = 0; i < medicineCount; i++) {
+            if (medicines[i] == medicine) {
+                exists = true;
+                break;
+            }
+        }
+        
+        if (!exists) {
+            // Resize array if needed
+            if (medicineCount >= medicines.length) {
+                Medicine[] newMedicines = new Medicine[medicines.length * 2];
+                System.arraycopy(medicines, 0, newMedicines, 0, medicines.length);
+                medicines = newMedicines;
+            }
+            
+            medicines[medicineCount++] = medicine;
         }
         
         MedicineDosage medicineDosage = new MedicineDosage(medicine, dosage, duration, specialInstructions);
-        medicinesDosage.add(medicineDosage);
+        
+        // Resize array if needed
+        if (medicineDosageCount >= medicinesDosage.length) {
+            MedicineDosage[] newMedicineDosages = new MedicineDosage[medicinesDosage.length * 2];
+            System.arraycopy(medicinesDosage, 0, newMedicineDosages, 0, medicinesDosage.length);
+            medicinesDosage = newMedicineDosages;
+        }
+        
+        medicinesDosage[medicineDosageCount++] = medicineDosage;
     }
     
     // Vararg method to add instructions
     public void addInstructions(String... newInstructions) {
         for (String instruction : newInstructions) {
-            this.instructions.add(instruction);
+            // Resize array if needed
+            if (instructionCount >= instructions.length) {
+                String[] newInstructionsArray = new String[instructions.length * 2];
+                System.arraycopy(instructions, 0, newInstructionsArray, 0, instructions.length);
+                instructions = newInstructionsArray;
+            }
+            
+            instructions[instructionCount++] = instruction;
         }
     }
     
@@ -229,8 +313,8 @@ public class Prescription{
     
     // Method to check if a medicine is in this prescription
     public boolean containsMedicine(String medicineId) {
-        for (Medicine medicine : medicines) {
-            if (medicine.getMedicineId().equals(medicineId)) {
+        for (int i = 0; i < medicineCount; i++) {
+            if (medicines[i].getMedicineId().equals(medicineId)) {
                 return true;
             }
         }
@@ -270,13 +354,29 @@ public class Prescription{
 
     public void setDiagnosis(String diagnosis) { this.diagnosis = diagnosis; }
 
-    public List<Medicine> getMedicines() { return medicines; }
+    public Medicine[] getMedicines() { 
+        // Return a trimmed array with only the filled elements
+        Medicine[] result = new Medicine[medicineCount];
+        System.arraycopy(medicines, 0, result, 0, medicineCount);
+        return result; 
+    }
 
-    public void setMedicines(List<Medicine> medicines) { this.medicines = medicines; }
+    public void setMedicines(Medicine[] medicines) { 
+        this.medicines = medicines; 
+        this.medicineCount = medicines.length;
+    }
 
-    public List<String> getInstructions() { return instructions; }
+    public String[] getInstructions() { 
+        // Return a trimmed array with only the filled elements
+        String[] result = new String[instructionCount];
+        System.arraycopy(instructions, 0, result, 0, instructionCount);
+        return result; 
+    }
 
-    public void setInstructions(List<String> instructions) { this.instructions = instructions; }
+    public void setInstructions(String[] instructions) { 
+        this.instructions = instructions; 
+        this.instructionCount = instructions.length;
+    }
 
     public boolean isVerified() { return isVerified; }
 
@@ -290,12 +390,25 @@ public class Prescription{
 
     public void setVerificationComments(String verificationComments) { this.verificationComments = verificationComments; }
 
-    public List<MedicineDosage> getMedicinesDosage() { return medicinesDosage; }
+    public MedicineDosage[] getMedicinesDosage() { 
+        // Return a trimmed array with only the filled elements
+        MedicineDosage[] result = new MedicineDosage[medicineDosageCount];
+        System.arraycopy(medicinesDosage, 0, result, 0, medicineDosageCount);
+        return result; 
+    }
 
-    public List<Medication> getMedications() { return medications; }
+    public Medication[] getMedications() { 
+        // Return a trimmed array with only the filled elements
+        Medication[] result = new Medication[medicationCount];
+        System.arraycopy(medications, 0, result, 0, medicationCount);
+        return result; 
+    }
 
-    public void setMedications(List<Medication> medications) { this.medications = medications; }
-    
+    public void setMedications(Medication[] medications) { 
+        this.medications = medications; 
+        this.medicationCount = medications.length;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -304,21 +417,17 @@ public class Prescription{
         sb.append("Doctor: ").append(doctorName).append("\n");
         sb.append("Diagnosis: ").append(diagnosis).append("\n");
         sb.append("Issue Date: ").append(issueDate).append("\n");
-        sb.append("Expiry Date: ").append(expiryDate).append("\n");
-        sb.append("Medicines: \n");
+        sb.append("Expires: ").append(expiryDate).append("\n");
+        sb.append("Verified: ").append(isVerified ? "Yes" : "No").append("\n");
         
-        for (MedicineDosage md : medicinesDosage) {
-            sb.append("- ").append(md.toString()).append("\n");
+        sb.append("Medicines:\n");
+        for (int i = 0; i < medicineCount; i++) {
+            sb.append("- ").append(medicines[i].getName()).append("\n");
         }
         
-        sb.append("Instructions: \n");
-        for (String instruction : instructions) {
-            sb.append("- ").append(instruction).append("\n");
-        }
-        
-        sb.append("Verified: ").append(isVerified ? "Yes" : "No");
-        if (isVerified && !verificationComments.isEmpty()) {
-            sb.append(" (").append(verificationComments).append(")");
+        sb.append("Instructions:\n");
+        for (int i = 0; i < instructionCount; i++) {
+            sb.append("- ").append(instructions[i]).append("\n");
         }
         
         return sb.toString();

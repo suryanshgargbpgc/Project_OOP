@@ -2,12 +2,9 @@ package com.pharmacy.service.impl;
 
 import com.pharmacy.model.Medicine;
 import com.pharmacy.service.MedicineRecommendationSystem;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.logging.Logger;
 
 /**
@@ -19,7 +16,7 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     private static final Logger logger = Logger.getLogger(MedicineRecommendationSystemImpl.class.getName());
     
     // Database of symptoms and associated medicines (simulated)
-    private Map<String, List<Medicine>> symptomMedicineMap;
+    private Map<String, Medicine[]> symptomMedicineMap;
     
     // Database of symptom information (simulated)
     private Map<String, Map<String, Object>> symptomInfoMap;
@@ -27,17 +24,17 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     // Database of medicine interactions (simulated)
     private Map<String, Map<String, String>> medicineInteractionsMap;
     
-    // List of symptoms that require medical attention (simulated)
-    private List<String> criticalSymptoms;
+    // Array of symptoms that require medical attention (simulated)
+    private String[] criticalSymptoms;
     
     // Map of specialist recommendations by symptom (simulated)
     private Map<String, Map<String, Double>> symptomSpecialistMap;
     
     // Map of health advice by condition (simulated)
-    private Map<String, List<String>> healthAdviceMap;
+    private Map<String, String[]> healthAdviceMap;
     
     // Database of medicine side effects (simulated)
-    private Map<String, List<String>> medicineSideEffectsMap;
+    private Map<String, String[]> medicineSideEffectsMap;
     
     /**
      * Constructor - initializes the simulated databases
@@ -53,9 +50,9 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     }
     
     @Override
-    public List<Medicine> recommendMedicinesForSymptoms(List<String> symptoms) {
-        if (symptoms == null || symptoms.isEmpty()) {
-            return new ArrayList<>();
+    public Medicine[] recommendMedicinesForSymptoms(String[] symptoms) {
+        if (symptoms == null || symptoms.length == 0) {
+            return new Medicine[0];
         }
         
         // Map to count the occurrence of each medicine
@@ -65,7 +62,7 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
         // For each symptom, add its associated medicines to the recommendation map
         for (String symptom : symptoms) {
             String normalizedSymptom = normalizeSymptom(symptom);
-            List<Medicine> medicinesForSymptom = symptomMedicineMap.getOrDefault(normalizedSymptom, new ArrayList<>());
+            Medicine[] medicinesForSymptom = symptomMedicineMap.getOrDefault(normalizedSymptom, new Medicine[0]);
             
             for (Medicine medicine : medicinesForSymptom) {
                 recommendedMedicines.put(medicine.getMedicineId(), medicine);
@@ -76,13 +73,15 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
             }
         }
         
+        // Convert map values to array
+        Medicine[] sortedMedicines = recommendedMedicines.values().toArray(new Medicine[0]);
+        
         // Sort medicines by number of matching symptoms
-        List<Medicine> sortedMedicines = new ArrayList<>(recommendedMedicines.values());
-        sortedMedicines.sort((m1, m2) -> 
+        Arrays.sort(sortedMedicines, (m1, m2) -> 
             medicineOccurrences.get(m2.getMedicineId()) - medicineOccurrences.get(m1.getMedicineId())
         );
         
-        logger.info("Recommended " + sortedMedicines.size() + " medicines for symptoms: " + symptoms);
+        logger.info("Recommended " + sortedMedicines.length + " medicines for symptoms: " + Arrays.toString(symptoms));
         return sortedMedicines;
     }
     
@@ -100,16 +99,18 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     }
     
     @Override
-    public boolean isMedicalAttentionRequired(List<String> symptoms) {
-        if (symptoms == null || symptoms.isEmpty()) {
+    public boolean isMedicalAttentionRequired(String[] symptoms) {
+        if (symptoms == null || symptoms.length == 0) {
             return false;
         }
         
         for (String symptom : symptoms) {
             String normalizedSymptom = normalizeSymptom(symptom);
-            if (criticalSymptoms.contains(normalizedSymptom)) {
-                logger.warning("Medical attention required for symptom: " + symptom);
-                return true;
+            for (String criticalSymptom : criticalSymptoms) {
+                if (criticalSymptom.equals(normalizedSymptom)) {
+                    logger.warning("Medical attention required for symptom: " + symptom);
+                    return true;
+                }
             }
         }
         
@@ -117,8 +118,8 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     }
     
     @Override
-    public Map<String, Double> getRecommendedSpecialists(List<String> symptoms) {
-        if (symptoms == null || symptoms.isEmpty()) {
+    public Map<String, Double> getRecommendedSpecialists(String[] symptoms) {
+        if (symptoms == null || symptoms.length == 0) {
             return new HashMap<>();
         }
         
@@ -135,64 +136,67 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
             }
         }
         
-        logger.info("Recommended specialists for symptoms: " + symptoms);
+        logger.info("Recommended specialists for symptoms: " + Arrays.toString(symptoms));
         return specialistScores;
     }
     
     @Override
-    public List<String> getPrecautionsForSymptoms(List<String> symptoms) {
-        if (symptoms == null || symptoms.isEmpty()) {
-            return new ArrayList<>();
+    public String[] getPrecautionsForSymptoms(String[] symptoms) {
+        if (symptoms == null || symptoms.length == 0) {
+            return new String[0];
         }
         
-        List<String> precautions = new ArrayList<>();
+        // Use a map to avoid duplicates
+        Map<String, Boolean> precautionsMap = new HashMap<>();
         
         for (String symptom : symptoms) {
             String normalizedSymptom = normalizeSymptom(symptom);
             Map<String, Object> info = symptomInfoMap.getOrDefault(normalizedSymptom, new HashMap<>());
             
             if (info.containsKey("precautions")) {
-                @SuppressWarnings("unchecked")
-                List<String> symptomPrecautions = (List<String>) info.get("precautions");
-                precautions.addAll(symptomPrecautions);
+                String[] symptomPrecautions = (String[]) info.get("precautions");
+                for (String precaution : symptomPrecautions) {
+                    precautionsMap.put(precaution, true);
+                }
             }
         }
         
-        // Remove duplicates
-        return precautions.stream().distinct().collect(Collectors.toList());
+        // Convert map keys to array
+        return precautionsMap.keySet().toArray(new String[0]);
     }
     
     @Override
-    public Map<String, List<String>> getPotentialSideEffects(List<String> medicineIds) {
-        if (medicineIds == null || medicineIds.isEmpty()) {
+    public Map<String, String[]> getPotentialSideEffects(String[] medicineIds) {
+        if (medicineIds == null || medicineIds.length == 0) {
             return new HashMap<>();
         }
         
-        Map<String, List<String>> sideEffects = new HashMap<>();
+        Map<String, String[]> sideEffects = new HashMap<>();
         
         for (String medicineId : medicineIds) {
-            List<String> effects = medicineSideEffectsMap.getOrDefault(medicineId, new ArrayList<>());
+            String[] effects = medicineSideEffectsMap.getOrDefault(medicineId, new String[0]);
             sideEffects.put(medicineId, effects);
         }
         
-        logger.info("Retrieved side effects for medicines: " + medicineIds);
+        logger.info("Retrieved side effects for medicines: " + Arrays.toString(medicineIds));
         return sideEffects;
     }
     
     @Override
-    public Map<String, Object> checkMedicineInteractions(List<String> medicineIds) {
-        if (medicineIds == null || medicineIds.size() < 2) {
+    public Map<String, Object> checkMedicineInteractions(String[] medicineIds) {
+        if (medicineIds == null || medicineIds.length < 2) {
             return new HashMap<>();
         }
         
         Map<String, Object> interactions = new HashMap<>();
-        List<Map<String, String>> interactionsList = new ArrayList<>();
+        Map<String, String>[] interactionsArray = new Map[medicineIds.length * (medicineIds.length - 1) / 2];
+        int interactionCount = 0;
         
         // Check each pair of medicines for interactions
-        for (int i = 0; i < medicineIds.size(); i++) {
-            for (int j = i + 1; j < medicineIds.size(); j++) {
-                String medicine1 = medicineIds.get(i);
-                String medicine2 = medicineIds.get(j);
+        for (int i = 0; i < medicineIds.length; i++) {
+            for (int j = i + 1; j < medicineIds.length; j++) {
+                String medicine1 = medicineIds[i];
+                String medicine2 = medicineIds[j];
                 
                 // Check if there's an interaction between these medicines
                 Map<String, String> medicine1Interactions = medicineInteractionsMap.getOrDefault(medicine1, new HashMap<>());
@@ -200,29 +204,33 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
                     Map<String, String> interaction = new HashMap<>();
                     interaction.put("medicine1", medicine1);
                     interaction.put("medicine2", medicine2);
-                    interaction.put("description", medicine1Interactions.get(medicine2));
-                    interaction.put("severity", "moderate"); // Simplified - real system would have severity levels
+                    interaction.put("interaction", medicine1Interactions.get(medicine2));
+                    interaction.put("severity", "high");
                     
-                    interactionsList.add(interaction);
+                    interactionsArray[interactionCount++] = interaction;
                 }
             }
         }
         
-        interactions.put("hasInteractions", !interactionsList.isEmpty());
-        interactions.put("interactions", interactionsList);
+        // Trim the array to actual size
+        Map<String, String>[] trimmedInteractions = new Map[interactionCount];
+        System.arraycopy(interactionsArray, 0, trimmedInteractions, 0, interactionCount);
         
-        logger.info("Checked interactions for medicines: " + medicineIds);
+        interactions.put("interactions", trimmedInteractions);
+        interactions.put("hasInteractions", interactionCount > 0);
+        
+        logger.info("Checked interactions for medicines: " + Arrays.toString(medicineIds));
         return interactions;
     }
     
     @Override
-    public List<String> getHealthAdvice(String condition) {
+    public String[] getHealthAdvice(String condition) {
         if (condition == null || condition.isEmpty()) {
-            return new ArrayList<>();
+            return new String[0];
         }
         
-        String normalizedCondition = normalizeSymptom(condition);
-        List<String> advice = healthAdviceMap.getOrDefault(normalizedCondition, new ArrayList<>());
+        String normalizedCondition = condition.toLowerCase().trim();
+        String[] advice = healthAdviceMap.getOrDefault(normalizedCondition, new String[0]);
         
         logger.info("Retrieved health advice for condition: " + condition);
         return advice;
@@ -231,235 +239,241 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
     @Override
     public String getSuggestedDosage(String medicineId, int age, double weight) {
         if (medicineId == null || medicineId.isEmpty() || age <= 0 || weight <= 0) {
-            return "Invalid input parameters";
+            return "No dosage information available.";
         }
         
-        // This is a simplified dosage recommendation logic
-        // In a real system, this would involve complex rules and medical guidelines
+        // This is a simplified dosage calculation for demonstration
+        // In a real system, this would be based on medical guidelines
         
-        // For demonstration purposes, we'll return a generic dosage recommendation
+        String ageGroup;
         if (age < 2) {
-            return "Not recommended for children under 2 years of age. Consult a pediatrician.";
+            ageGroup = "infant";
         } else if (age < 12) {
-            return "Children's dosage: 5ml (1 teaspoon) every 6-8 hours as needed. Do not exceed 4 doses in 24 hours.";
+            ageGroup = "child";
         } else if (age < 18) {
-            return "Teen dosage: 10ml (2 teaspoons) every 6-8 hours as needed. Do not exceed 4 doses in 24 hours.";
+            ageGroup = "adolescent";
+        } else if (age < 65) {
+            ageGroup = "adult";
         } else {
-            return "Adult dosage: 15-30ml (3-6 teaspoons) every 6-8 hours as needed. Do not exceed 4 doses in 24 hours.";
+            ageGroup = "senior";
         }
+        
+        // Simulated dosage calculation
+        String dosage = "For " + ageGroup + " (" + age + " years, " + weight + " kg): ";
+        
+        switch (medicineId) {
+            case "MED001": // Paracetamol
+                dosage += calculatePainkilerDosage(age, weight);
+                break;
+            case "MED002": // Cetirizine
+                dosage += calculateAntihistamineDosage(age, weight);
+                break;
+            default:
+                dosage += "Please consult a healthcare professional for dosage information.";
+        }
+        
+        logger.info("Calculated dosage for medicine: " + medicineId);
+        return dosage;
     }
     
-    /**
-     * Normalize a symptom string for consistent lookup
-     * 
-     * @param symptom The symptom to normalize
-     * @return Normalized symptom string
-     */
     private String normalizeSymptom(String symptom) {
+        // Convert to lowercase and trim whitespace
         return symptom.toLowerCase().trim();
     }
     
-    /**
-     * Initialize the symptom-medicine map with sample data
-     */
+    // Method to calculate painkiller dosage
+    private String calculatePainkilerDosage(int age, double weight) {
+        if (age < 12) {
+            return Math.round(weight * 10) + "mg every 4-6 hours (max 4 doses in 24 hours)";
+        } else {
+            return "500-1000mg every 4-6 hours (max 4g in 24 hours)";
+        }
+    }
+    
+    // Method to calculate antihistamine dosage
+    private String calculateAntihistamineDosage(int age, double weight) {
+        if (age < 6) {
+            return "Not recommended for children under 6";
+        } else if (age < 12) {
+            return "5mg once daily";
+        } else {
+            return "10mg once daily";
+        }
+    }
+    
     private void initializeSymptomMedicineMap() {
         symptomMedicineMap = new HashMap<>();
         
-        // Sample medicines
+        // Create some sample medicines
         Medicine paracetamol = new Medicine("MED001", "Paracetamol", 5.99, false);
         paracetamol.setDescription("Pain reliever and fever reducer");
         paracetamol.setCategory("OTC");
         
-        Medicine ibuprofen = new Medicine("MED002", "Ibuprofen", 6.99, false);
-        ibuprofen.setDescription("Non-steroidal anti-inflammatory drug");
-        ibuprofen.setCategory("OTC");
-        
-        Medicine cetirizine = new Medicine("MED003", "Cetirizine", 8.99, false);
+        Medicine cetirizine = new Medicine("MED002", "Cetirizine", 8.99, false);
         cetirizine.setDescription("Antihistamine for allergy relief");
         cetirizine.setCategory("OTC");
         
-        Medicine loratadine = new Medicine("MED004", "Loratadine", 9.99, false);
-        loratadine.setDescription("Non-drowsy antihistamine");
-        loratadine.setCategory("OTC");
+        Medicine ibuprofen = new Medicine("MED003", "Ibuprofen", 6.99, false);
+        ibuprofen.setDescription("NSAID for pain and inflammation");
+        ibuprofen.setCategory("OTC");
         
-        Medicine guaifenesin = new Medicine("MED005", "Guaifenesin", 7.99, false);
-        guaifenesin.setDescription("Expectorant to help loosen congestion");
-        guaifenesin.setCategory("OTC");
-        
-        Medicine dextromethorphan = new Medicine("MED006", "Dextromethorphan", 8.49, false);
-        dextromethorphan.setDescription("Cough suppressant");
-        dextromethorphan.setCategory("OTC");
-        
-        Medicine bismuthSubsalicylate = new Medicine("MED007", "Bismuth Subsalicylate", 10.99, false);
-        bismuthSubsalicylate.setDescription("Anti-diarrheal and upset stomach reliever");
-        bismuthSubsalicylate.setCategory("OTC");
+        Medicine pseudoephedrine = new Medicine("MED004", "Pseudoephedrine", 9.99, false);
+        pseudoephedrine.setDescription("Decongestant for nasal congestion");
+        pseudoephedrine.setCategory("OTC");
         
         // Map symptoms to medicines
-        symptomMedicineMap.put("headache", Arrays.asList(paracetamol, ibuprofen));
-        symptomMedicineMap.put("fever", Arrays.asList(paracetamol, ibuprofen));
-        symptomMedicineMap.put("pain", Arrays.asList(paracetamol, ibuprofen));
-        symptomMedicineMap.put("muscle pain", Arrays.asList(ibuprofen));
-        symptomMedicineMap.put("allergy", Arrays.asList(cetirizine, loratadine));
-        symptomMedicineMap.put("runny nose", Arrays.asList(cetirizine, loratadine));
-        symptomMedicineMap.put("itchy eyes", Arrays.asList(cetirizine, loratadine));
-        symptomMedicineMap.put("congestion", Arrays.asList(guaifenesin));
-        symptomMedicineMap.put("cough", Arrays.asList(dextromethorphan, guaifenesin));
-        symptomMedicineMap.put("diarrhea", Arrays.asList(bismuthSubsalicylate));
-        symptomMedicineMap.put("upset stomach", Arrays.asList(bismuthSubsalicylate));
+        symptomMedicineMap.put("headache", new Medicine[]{paracetamol, ibuprofen});
+        symptomMedicineMap.put("fever", new Medicine[]{paracetamol, ibuprofen});
+        symptomMedicineMap.put("pain", new Medicine[]{paracetamol, ibuprofen});
+        symptomMedicineMap.put("allergies", new Medicine[]{cetirizine});
+        symptomMedicineMap.put("sneezing", new Medicine[]{cetirizine});
+        symptomMedicineMap.put("runny nose", new Medicine[]{cetirizine, pseudoephedrine});
+        symptomMedicineMap.put("congestion", new Medicine[]{pseudoephedrine});
+        symptomMedicineMap.put("sinus pressure", new Medicine[]{pseudoephedrine, ibuprofen});
+        symptomMedicineMap.put("inflammation", new Medicine[]{ibuprofen});
     }
     
-    /**
-     * Initialize the symptom information map with sample data
-     */
     private void initializeSymptomInfoMap() {
         symptomInfoMap = new HashMap<>();
         
+        // Headache information
         Map<String, Object> headacheInfo = new HashMap<>();
         headacheInfo.put("description", "Pain or discomfort in the head, scalp, or neck");
-        headacheInfo.put("possibleCauses", Arrays.asList("Stress", "Tension", "Dehydration", "Migraine", "Sinus pressure"));
-        headacheInfo.put("precautions", Arrays.asList("Stay hydrated", "Rest in a quiet, dark room", "Apply cold compress"));
+        headacheInfo.put("precautions", new String[]{
+            "Rest in a quiet, dark room",
+            "Apply a cold compress to your forehead",
+            "Stay hydrated",
+            "Avoid triggers such as loud noises or bright lights"
+        });
         symptomInfoMap.put("headache", headacheInfo);
         
+        // Fever information
         Map<String, Object> feverInfo = new HashMap<>();
-        feverInfo.put("description", "Body temperature above the normal range of 98-100°F (37°C)");
-        feverInfo.put("possibleCauses", Arrays.asList("Infection", "Inflammation", "Immune response"));
-        feverInfo.put("precautions", Arrays.asList("Stay hydrated", "Rest", "Use light clothing and bedding"));
+        feverInfo.put("description", "Elevated body temperature above the normal range");
+        feverInfo.put("precautions", new String[]{
+            "Rest and get plenty of fluids",
+            "Dress lightly",
+            "Take a lukewarm bath",
+            "See a doctor if fever persists over 3 days or exceeds 103°F (39.4°C)"
+        });
         symptomInfoMap.put("fever", feverInfo);
         
-        Map<String, Object> coughInfo = new HashMap<>();
-        coughInfo.put("description", "Sudden expulsion of air from the lungs to clear the airway");
-        coughInfo.put("possibleCauses", Arrays.asList("Common cold", "Allergies", "Asthma", "Infection"));
-        coughInfo.put("precautions", Arrays.asList("Stay hydrated", "Use a humidifier", "Avoid irritants"));
-        symptomInfoMap.put("cough", coughInfo);
-        
-        // Add more symptom information as needed
+        // Other symptoms...
     }
     
-    /**
-     * Initialize the medicine interactions map with sample data
-     */
     private void initializeMedicineInteractionsMap() {
         medicineInteractionsMap = new HashMap<>();
         
-        // Example interactions (simplified)
+        // Create some sample interactions
         Map<String, String> paracetamolInteractions = new HashMap<>();
-        paracetamolInteractions.put("MED002", "Taking Paracetamol and Ibuprofen together is generally safe when following recommended dosages, but may increase risk of side effects.");
+        paracetamolInteractions.put("MED005", "May increase risk of bleeding");
         medicineInteractionsMap.put("MED001", paracetamolInteractions);
         
         Map<String, String> ibuprofenInteractions = new HashMap<>();
-        ibuprofenInteractions.put("MED001", "Taking Ibuprofen and Paracetamol together is generally safe when following recommended dosages, but may increase risk of side effects.");
-        medicineInteractionsMap.put("MED002", ibuprofenInteractions);
-        
-        // Add more interactions as needed
+        ibuprofenInteractions.put("MED005", "May increase risk of bleeding");
+        ibuprofenInteractions.put("MED006", "May decrease effectiveness of blood pressure medication");
+        medicineInteractionsMap.put("MED003", ibuprofenInteractions);
     }
     
-    /**
-     * Initialize the list of symptoms that require medical attention
-     */
     private void initializeCriticalSymptoms() {
-        criticalSymptoms = Arrays.asList(
+        criticalSymptoms = new String[] {
             "chest pain",
             "difficulty breathing",
             "severe headache",
-            "sudden vision changes",
-            "sudden weakness",
-            "high fever",
-            "uncontrolled bleeding",
+            "sudden dizziness",
+            "confusion",
+            "slurred speech",
             "severe abdominal pain",
-            "seizure",
-            "unconsciousness"
-        );
+            "high fever with stiff neck",
+            "severe vomiting",
+            "suicidal thoughts"
+        };
     }
     
-    /**
-     * Initialize the symptom-specialist map with sample data
-     */
     private void initializeSymptomSpecialistMap() {
         symptomSpecialistMap = new HashMap<>();
         
+        // Headache specialists
         Map<String, Double> headacheSpecialists = new HashMap<>();
-        headacheSpecialists.put("General Practitioner", 1.0);
-        headacheSpecialists.put("Neurologist", 0.7);
+        headacheSpecialists.put("Neurologist", 0.8);
+        headacheSpecialists.put("General Practitioner", 0.6);
         symptomSpecialistMap.put("headache", headacheSpecialists);
         
-        Map<String, Double> feverSpecialists = new HashMap<>();
-        feverSpecialists.put("General Practitioner", 1.0);
-        feverSpecialists.put("Infectious Disease Specialist", 0.5);
-        symptomSpecialistMap.put("fever", feverSpecialists);
+        // Allergy specialists
+        Map<String, Double> allergySpecialists = new HashMap<>();
+        allergySpecialists.put("Allergist", 0.9);
+        allergySpecialists.put("ENT Specialist", 0.7);
+        allergySpecialists.put("General Practitioner", 0.5);
+        symptomSpecialistMap.put("allergies", allergySpecialists);
         
-        Map<String, Double> coughSpecialists = new HashMap<>();
-        coughSpecialists.put("General Practitioner", 1.0);
-        coughSpecialists.put("Pulmonologist", 0.6);
-        coughSpecialists.put("ENT Specialist", 0.4);
-        symptomSpecialistMap.put("cough", coughSpecialists);
+        // Congestion specialists
+        Map<String, Double> congestionSpecialists = new HashMap<>();
+        congestionSpecialists.put("ENT Specialist", 0.8);
+        congestionSpecialists.put("Pulmonologist", 0.6);
+        congestionSpecialists.put("General Practitioner", 0.5);
+        symptomSpecialistMap.put("congestion", congestionSpecialists);
         
-        // Add more specialist recommendations as needed
+        // Other symptoms...
     }
     
-    /**
-     * Initialize the health advice map with sample data
-     */
     private void initializeHealthAdviceMap() {
         healthAdviceMap = new HashMap<>();
         
-        healthAdviceMap.put("common cold", Arrays.asList(
-            "Rest and stay hydrated",
+        healthAdviceMap.put("headache", new String[]{
+            "Ensure you're staying hydrated",
+            "Maintain regular sleep patterns",
+            "Practice stress reduction techniques",
+            "Limit screen time, especially before bed",
+            "Consider tracking triggers in a headache journal"
+        });
+        
+        healthAdviceMap.put("allergies", new String[]{
+            "Identify and avoid allergens when possible",
+            "Use air purifiers at home",
+            "Keep windows closed during high pollen seasons",
+            "Wash bedding frequently in hot water",
+            "Shower after outdoor activities"
+        });
+        
+        healthAdviceMap.put("common cold", new String[]{
+            "Get plenty of rest",
+            "Stay hydrated with water, tea, and clear broths",
             "Use a humidifier to add moisture to the air",
             "Gargle with salt water to soothe a sore throat",
-            "Take over-the-counter cold medications as directed",
-            "Stay home to avoid spreading the cold to others"
-        ));
+            "Consider zinc lozenges within 24 hours of symptoms"
+        });
         
-        healthAdviceMap.put("allergies", Arrays.asList(
-            "Identify and avoid allergy triggers",
-            "Keep windows closed during high pollen seasons",
-            "Use air purifiers to reduce allergens",
-            "Take antihistamines as recommended",
-            "Consider nasal irrigation to clear allergens from nasal passages"
-        ));
-        
-        healthAdviceMap.put("headache", Arrays.asList(
-            "Rest in a quiet, dark room",
-            "Apply a cold or warm compress to your head",
-            "Stay hydrated",
-            "Practice relaxation techniques",
-            "Maintain a regular sleep schedule"
-        ));
-        
-        // Add more health advice as needed
+        // Other health advice...
     }
     
-    /**
-     * Initialize the medicine side effects map with sample data
-     */
     private void initializeMedicineSideEffectsMap() {
         medicineSideEffectsMap = new HashMap<>();
         
-        medicineSideEffectsMap.put("MED001", Arrays.asList(
+        medicineSideEffectsMap.put("MED001", new String[]{
             "Nausea",
             "Stomach pain",
-            "Liver damage (with excessive use)"
-        ));
+            "Possible liver damage with prolonged use or high doses"
+        });
         
-        medicineSideEffectsMap.put("MED002", Arrays.asList(
-            "Stomach upset",
-            "Heartburn",
-            "Stomach bleeding (with long-term use)",
-            "Increased blood pressure"
-        ));
-        
-        medicineSideEffectsMap.put("MED003", Arrays.asList(
+        medicineSideEffectsMap.put("MED002", new String[]{
             "Drowsiness",
             "Dry mouth",
+            "Fatigue",
             "Headache"
-        ));
+        });
         
-        medicineSideEffectsMap.put("MED004", Arrays.asList(
-            "Headache",
-            "Dry mouth",
-            "Fatigue"
-        ));
+        medicineSideEffectsMap.put("MED003", new String[]{
+            "Stomach upset",
+            "Heartburn",
+            "Dizziness",
+            "Possible increased risk of heart problems with prolonged use"
+        });
         
-        // Add more side effects as needed
+        medicineSideEffectsMap.put("MED004", new String[]{
+            "Nervousness",
+            "Difficulty sleeping",
+            "Increased blood pressure",
+            "Rapid heartbeat"
+        });
     }
 } 

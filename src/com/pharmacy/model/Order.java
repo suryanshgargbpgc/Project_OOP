@@ -1,37 +1,67 @@
 package com.pharmacy.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Order class represents a customer's medicine order
  */
 public class Order implements Serializable {
 
-    
-    // Enum for order status
-    public enum OrderStatus {
-        PLACED,
-        CONFIRMED,
-        PROCESSING,
-        SHIPPED,
-        DELIVERED,
-        CANCELLED,
-        RETURNED,
-        EMERGENCY
+    // Replace enum with proper class for order status
+    public static class OrderStatus implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final String status;
+        
+        private OrderStatus(String status) {
+            this.status = status;
+        }
+        
+        public String getStatus() {
+            return status;
+        }
+        
+        @Override
+        public String toString() {
+            return status;
+        }
+        
+        // Static instances instead of enum values
+        public static final OrderStatus PLACED = new OrderStatus("PLACED");
+        public static final OrderStatus CONFIRMED = new OrderStatus("CONFIRMED");
+        public static final OrderStatus PROCESSING = new OrderStatus("PROCESSING");
+        public static final OrderStatus SHIPPED = new OrderStatus("SHIPPED");
+        public static final OrderStatus DELIVERED = new OrderStatus("DELIVERED");
+        public static final OrderStatus CANCELLED = new OrderStatus("CANCELLED");
+        public static final OrderStatus RETURNED = new OrderStatus("RETURNED");
+        public static final OrderStatus EMERGENCY = new OrderStatus("EMERGENCY");
     }
     
-    // Enum for payment method
-    public enum PaymentMethod {
-        CREDIT_CARD,
-        DEBIT_CARD,
-        NET_BANKING,
-        UPI,
-        WALLET,
-        CASH_ON_DELIVERY,
-
+    // Replace enum with proper class for payment method
+    public static class PaymentMethod implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private final String method;
+        
+        private PaymentMethod(String method) {
+            this.method = method;
+        }
+        
+        public String getMethod() {
+            return method;
+        }
+        
+        @Override
+        public String toString() {
+            return method;
+        }
+        
+        // Static instances instead of enum values
+        public static final PaymentMethod CREDIT_CARD = new PaymentMethod("CREDIT_CARD");
+        public static final PaymentMethod DEBIT_CARD = new PaymentMethod("DEBIT_CARD");
+        public static final PaymentMethod NET_BANKING = new PaymentMethod("NET_BANKING");
+        public static final PaymentMethod UPI = new PaymentMethod("UPI");
+        public static final PaymentMethod WALLET = new PaymentMethod("WALLET");
+        public static final PaymentMethod CASH_ON_DELIVERY = new PaymentMethod("CASH_ON_DELIVERY");
     }
     
     private String orderId;
@@ -46,7 +76,8 @@ public class Order implements Serializable {
     private Date deliveryDate;
     private boolean isEmergency;
     private String trackingNumber;
-    private List<OrderItem> orderItems;
+    private OrderItem[] orderItems; // Changed from List to array
+    private int itemCount; // Track number of items in the array
     
     // Inner class for order items
     public static class OrderItem implements Serializable {
@@ -115,7 +146,8 @@ public class Order implements Serializable {
         this.deliveryDate = null;
         this.isEmergency = false;
         this.trackingNumber = "";
-        this.orderItems = new ArrayList<>();
+        this.orderItems = new OrderItem[10]; // Initial capacity
+        this.itemCount = 0;
     }
     
     // Constructor with basic information
@@ -132,7 +164,8 @@ public class Order implements Serializable {
         this.deliveryDate = null; 
         this.isEmergency = false;
         this.trackingNumber = "";
-        this.orderItems = new ArrayList<>();
+        this.orderItems = new OrderItem[10]; // Initial capacity
+        this.itemCount = 0;
     }
     
     // Constructor for orders with prescription
@@ -155,10 +188,10 @@ public class Order implements Serializable {
         // Check if medicine is in stock
         if (medicine.getStock() >= quantity) {
             // Check if medicine already exists in the order
-            for (OrderItem item : orderItems) {
-                if (item.getMedicine().getMedicineId().equals(medicine.getMedicineId())) {
+            for (int i = 0; i < itemCount; i++) {
+                if (orderItems[i].getMedicine().getMedicineId().equals(medicine.getMedicineId())) {
                     // Update quantity if medicine already exists
-                    item.setQuantity(item.getQuantity() + quantity);
+                    orderItems[i].setQuantity(orderItems[i].getQuantity() + quantity);
                     calculateTotal();
                     return;
                 }
@@ -166,7 +199,15 @@ public class Order implements Serializable {
             
             // Add new order item if medicine doesn't exist
             OrderItem orderItem = new OrderItem(medicine, quantity);
-            orderItems.add(orderItem);
+            
+            // Resize array if needed
+            if (itemCount >= orderItems.length) {
+                OrderItem[] newOrderItems = new OrderItem[orderItems.length * 2];
+                System.arraycopy(orderItems, 0, newOrderItems, 0, orderItems.length);
+                orderItems = newOrderItems;
+            }
+            
+            orderItems[itemCount++] = orderItem;
             calculateTotal();
         }
     }
@@ -192,8 +233,8 @@ public class Order implements Serializable {
     // Method to calculate the total amount
     private void calculateTotal() {
         this.totalAmount = 0.0;
-        for (OrderItem item : orderItems) {
-            this.totalAmount += item.getTotalPrice();
+        for (int i = 0; i < itemCount; i++) {
+            this.totalAmount += orderItems[i].getTotalPrice();
         }
     }
     
@@ -226,8 +267,8 @@ public class Order implements Serializable {
     
     // Method to check if order contains prescription medicines
     public boolean containsPrescriptionMedicines() {
-        for (OrderItem item : orderItems) {
-            if (item.getMedicine().isRequiresPrescription()) {
+        for (int i = 0; i < itemCount; i++) {
+            if (orderItems[i].getMedicine().isRequiresPrescription()) {
                 return true;
             }
         }
@@ -334,12 +375,16 @@ public class Order implements Serializable {
         this.trackingNumber = trackingNumber;
     }
 
-    public List<OrderItem> getOrderItems() {
-        return orderItems;
+    public OrderItem[] getOrderItems() {
+        // Return a trimmed array with only the filled elements
+        OrderItem[] result = new OrderItem[itemCount];
+        System.arraycopy(orderItems, 0, result, 0, itemCount);
+        return result;
     }
 
-    public void setOrderItems(List<OrderItem> orderItems) {
+    public void setOrderItems(OrderItem[] orderItems) {
         this.orderItems = orderItems;
+        this.itemCount = orderItems.length;
         calculateTotal();
     }
     
@@ -353,8 +398,8 @@ public class Order implements Serializable {
         sb.append("Total Amount: $").append(totalAmount).append("\n");
         sb.append("Items: \n");
         
-        for (OrderItem item : orderItems) {
-            sb.append("- ").append(item.toString()).append("\n");
+        for (int i = 0; i < itemCount; i++) {
+            sb.append("- ").append(orderItems[i].toString()).append("\n");
         }
         
         sb.append("Payment Method: ").append(paymentMethod).append("\n");

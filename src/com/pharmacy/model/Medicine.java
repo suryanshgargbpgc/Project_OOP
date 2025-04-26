@@ -1,8 +1,6 @@
 package com.pharmacy.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Medicine class represents pharmaceutical products available in the pharmacy
@@ -16,7 +14,8 @@ public class Medicine {
     private boolean requiresPrescription;
     private Date manufactureDate;
     private Date expiryDate;
-    private List<String> sideEffects;
+    private String[] sideEffects; // Changed from List to array
+    private int sideEffectCount; // Track number of side effects
     private String category; // OTC, Prescription, Generic, etc.
 
     // Default constructor
@@ -29,7 +28,8 @@ public class Medicine {
         this.requiresPrescription = false;
         this.manufactureDate = new Date();
         this.expiryDate = new Date();
-        this.sideEffects = new ArrayList<>();
+        this.sideEffects = new String[10]; // Initial capacity
+        this.sideEffectCount = 0;
         this.category = "";
     }
     
@@ -43,7 +43,8 @@ public class Medicine {
         this.requiresPrescription = requiresPrescription;
         this.manufactureDate = new Date();
         this.expiryDate = new Date();
-        this.sideEffects = new ArrayList<>();
+        this.sideEffects = new String[10]; // Initial capacity
+        this.sideEffectCount = 0;
         this.category = "";
     }
     
@@ -59,7 +60,8 @@ public class Medicine {
         this.requiresPrescription = requiresPrescription;
         this.manufactureDate = manufactureDate;
         this.expiryDate = expiryDate;
-        this.sideEffects = new ArrayList<>();
+        this.sideEffects = new String[10]; // Initial capacity
+        this.sideEffectCount = 0;
         this.category = category;
     }
     
@@ -91,7 +93,14 @@ public class Medicine {
     // Vararg method to add side effects
     public void addSideEffects(String... effects) {
         for (String effect : effects) {
-            this.sideEffects.add(effect);
+            // Resize array if needed
+            if (sideEffectCount >= sideEffects.length) {
+                String[] newSideEffects = new String[sideEffects.length * 2];
+                System.arraycopy(sideEffects, 0, newSideEffects, 0, sideEffects.length);
+                sideEffects = newSideEffects;
+            }
+            
+            this.sideEffects[sideEffectCount++] = effect;
         }
     }
     
@@ -160,12 +169,16 @@ public class Medicine {
         this.expiryDate = expiryDate;
     }
 
-    public List<String> getSideEffects() {
-        return sideEffects;
+    public String[] getSideEffects() {
+        // Return a trimmed array with only the filled elements
+        String[] result = new String[sideEffectCount];
+        System.arraycopy(sideEffects, 0, result, 0, sideEffectCount);
+        return result;
     }
 
-    public void setSideEffects(List<String> sideEffects) {
+    public void setSideEffects(String[] sideEffects) {
         this.sideEffects = sideEffects;
+        this.sideEffectCount = sideEffects.length;
     }
 
     public String getCategory() {
