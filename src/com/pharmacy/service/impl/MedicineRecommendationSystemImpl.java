@@ -83,7 +83,7 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
      */
     private boolean isMedicineAlreadyAdded(Medicine[] list, int count, Medicine med) {
         for (int i = 0; i < count; i++) {
-            if (list[i].getMedicineId().equals(med.getMedicineId())) {
+            if (list[i].getID().equals(med.getID())) {
                 return true;
             }
         }
@@ -154,24 +154,24 @@ public class MedicineRecommendationSystemImpl implements MedicineRecommendationS
         
         // Create some sample medicines
         Medicine painkiller = new Medicine("M001", "Tylenol", 6.99, false);
-        painkiller.setDescription("Helps with pain and fever");
-        painkiller.setCategory("OTC");
-        painkiller.setStock(100);
+        painkiller.setInfo("Helps with pain and fever");
+        painkiller.setType("OTC");
+        painkiller.setCount(100);
         
         Medicine antiInflam = new Medicine("M002", "Advil", 7.50, false);
-        antiInflam.setDescription("Reduces inflammation and pain");
-        antiInflam.setCategory("OTC");
-        antiInflam.setStock(80);
+        antiInflam.setInfo("Reduces inflammation and pain");
+        antiInflam.setType("OTC");
+        antiInflam.setCount(80);
         
         Medicine allergy = new Medicine("M003", "Benadryl", 9.25, false);
-        allergy.setDescription("Helps with allergies and runny nose");
-        allergy.setCategory("OTC");
-        allergy.setStock(75);
+        allergy.setInfo("Helps with allergies and runny nose");
+        allergy.setType("OTC");
+        allergy.setCount(75);
         
         Medicine coldMed = new Medicine("M004", "NyQuil", 10.50, false);
-        coldMed.setDescription("Helps with cough and cold");
-        coldMed.setCategory("OTC");
-        coldMed.setStock(60);
+        coldMed.setInfo("Helps with cough and cold");
+        coldMed.setType("OTC");
+        coldMed.setCount(60);
         
         // Assign medicines to symptoms
         medicinesForEachSymptom[0] = new Medicine[] { painkiller, antiInflam }; // headache

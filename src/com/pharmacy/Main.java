@@ -105,7 +105,7 @@ public class Main {
             "MD12345", 
             "Family Medicine"
         );
-        d.setConsultationFee(80.0);
+        d.setFee(80.0);
         return d;
     }
     
@@ -116,30 +116,30 @@ public class Main {
         
         // Create medicine 1
         Medicine med1 = new Medicine("M001", "Aspirin", 4.99, false);
-        med1.setDescription("Common pain reliever");
-        med1.setCategory("Pain Relief");
-        med1.setStock(120);
+        med1.setInfo("Common pain reliever");
+        med1.setType("Pain Relief");
+        med1.setCount(120);
         meds[0] = med1;
         
         // Create medicine 2
         Medicine med2 = new Medicine("M002", "Claritin", 8.50, false);
-        med2.setDescription("For allergies and hay fever");
-        med2.setCategory("Allergy");
-        med2.setStock(85);
+        med2.setInfo("For allergies and hay fever");
+        med2.setType("Allergy");
+        med2.setCount(85);
         meds[1] = med2;
         
         // Create medicine 3
         Medicine med3 = new Medicine("M003", "Amoxicillin", 12.75, true);
-        med3.setDescription("Antibiotic for bacterial infections");
-        med3.setCategory("Antibiotic");
-        med3.setStock(45);
+        med3.setInfo("Antibiotic for bacterial infections");
+        med3.setType("Antibiotic");
+        med3.setCount(45);
         meds[2] = med3;
         
         // Create medicine 4
         Medicine med4 = new Medicine("M004", "Insulin", 45.99, true);
-        med4.setDescription("For managing diabetes");
-        med4.setCategory("Diabetes");
-        med4.setStock(30);
+        med4.setInfo("For managing diabetes");
+        med4.setType("Diabetes");
+        med4.setCount(30);
         meds[3] = med4;
         
         return meds;
@@ -161,9 +161,9 @@ public class Main {
         System.out.println("Name: " + doctor.getName());
         System.out.println("Email: " + doctor.getEmail());
         System.out.println("Phone: " + doctor.getPhoneNumber());
-        System.out.println("License: " + doctor.getLicenseNumber());
-        System.out.println("Specialty: " + doctor.getSpecialization());
-        System.out.println("Fee: $" + doctor.getConsultationFee());
+        System.out.println("License: " + doctor.getLicense());
+        System.out.println("Specialty: " + doctor.getType());
+        System.out.println("Fee: $" + doctor.getFee());
     }
     
     // Display medicine list
@@ -176,12 +176,12 @@ public class Main {
         for (int i = 0; i < meds.length; i++) {
             Medicine m = meds[i];
             System.out.printf("%-8s %-20s %-12.2f %-14s %-6d %s\n", 
-                           m.getMedicineId(), 
-                           m.getName(), 
-                           m.getPrice(), 
-                           m.getCategory(), 
-                           m.getStock(), 
-                           m.isRequiresPrescription() ? "Yes" : "No");
+                           m.getID(), 
+                           m.getMedName(), 
+                           m.getMedPrice(), 
+                           m.getType(), 
+                           m.getCount(), 
+                           m.getNeedsRx() ? "Yes" : "No");
         }
     }
     
@@ -200,7 +200,7 @@ public class Main {
         prescribedMeds[1] = meds[0]; // Aspirin
         
         // Create prescription
-        Prescription prescription = doctor.issuePrescription(customer, diagnosis, prescribedMeds);
+        Prescription prescription = doctor.makePrescription(customer, diagnosis, prescribedMeds);
         
         // Add some instructions
         prescription.addInstructions(
@@ -217,7 +217,7 @@ public class Main {
         System.out.println(prescription.toString());
         
         // Save to customer record
-        customer.addPrescription(prescription);
+        customer.addRx(prescription);
         System.out.println("Prescription saved to customer record!");
     }
     
@@ -229,40 +229,40 @@ public class Main {
         Order order = new Order(customer.getUserId(), customer.getAddress());
         
         // Add some items
-        order.addItem(meds[0], 2); // 2 bottles of Aspirin
-        order.addItem(meds[1], 1); // 1 box of Claritin
+        order.addMed(meds[0], 2); // 2 bottles of Aspirin
+        order.addMed(meds[1], 1); // 1 box of Claritin
         
         // Show order summary
         System.out.println("\n------ ORDER SUMMARY ------");
-        System.out.println("Order ID: " + order.getOrderId());
-        System.out.println("Customer: " + order.getCustomerId());
-        System.out.println("Ship To: " + order.getShippingAddress());
-        System.out.println("Date: " + order.getOrderDate());
+        System.out.println("Order ID: " + order.getID());
+        System.out.println("Customer: " + order.getCustID());
+        System.out.println("Ship To: " + order.getAddress());
+        System.out.println("Date: " + order.getDate());
         System.out.println("Status: " + order.getStatus());
         
         // Show items
         System.out.println("\nItems:");
         for (int i = 0; i < order.getItemCount(); i++) {
-            Medicine item = order.getItemAtIndex(i);
-            int qty = order.getQuantityAtIndex(i);
-            double price = item.getPrice();
+            Medicine item = order.getMed(i);
+            int qty = order.getQty(i);
+            double price = item.getMedPrice();
             double total = price * qty;
             
             System.out.printf("- %s (%s): %d x $%.2f = $%.2f\n", 
-                item.getName(), 
-                item.getMedicineId(), 
+                item.getMedName(), 
+                item.getID(), 
                 qty, 
                 price, 
                 total);
         }
         
         // Show totals
-        System.out.println("\nSubtotal: $" + String.format("%.2f", order.getSubtotal()));
-        System.out.println("Shipping: $" + String.format("%.2f", order.getShippingCost()));
-        System.out.println("Total: $" + String.format("%.2f", order.getTotalAmount()));
+        System.out.println("\nSubtotal: $" + String.format("%.2f", order.getSubTotal()));
+        System.out.println("Shipping: $" + String.format("%.2f", order.getShipCost()));
+        System.out.println("Total: $" + String.format("%.2f", order.getTotal()));
         
         // Process payment (in real app would collect card info)
-        order.processPayment("CREDIT_CARD");
+        order.pay("CREDIT_CARD");
         System.out.println("\nPayment processed! Order status: " + order.getStatus());
     }
     
@@ -299,9 +299,9 @@ public class Main {
         } else {
             for (int i = 0; i < recommendedMeds.length; i++) {
                 Medicine med = recommendedMeds[i];
-                System.out.println("- " + med.getName() + ": " + med.getDescription());
-                System.out.println("  Price: $" + String.format("%.2f", med.getPrice()));
-                System.out.println("  Category: " + med.getCategory());
+                System.out.println("- " + med.getMedName() + ": " + med.getInfo());
+                System.out.println("  Price: $" + String.format("%.2f", med.getMedPrice()));
+                System.out.println("  Category: " + med.getType());
                 System.out.println();
             }
         }
