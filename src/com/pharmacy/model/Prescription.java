@@ -8,9 +8,8 @@ import java.util.List;
 /**
  * Prescription class represents a medical prescription issued by a doctor
  */
-public class Prescription implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
+public class Prescription{
+
     private String prescriptionId;
     private String customerId;
     private String doctorId;
@@ -26,9 +25,8 @@ public class Prescription implements Serializable {
     private String verificationComments;
     
     // Inner class for medicine dosage instructions
-    public class MedicineDosage implements Serializable {
-        private static final long serialVersionUID = 1L;
-        
+    public class MedicineDosage {
+
         private Medicine medicine;
         private String dosage; // E.g., "1 tablet 3 times a day after meals"
         private int duration; // In days
@@ -91,8 +89,7 @@ public class Prescription implements Serializable {
     
     // Nested class for Medication (for uploaded prescriptions)
     public static class Medication implements Serializable {
-        private static final long serialVersionUID = 1L;
-        
+
         private String name;
         private String dosage;
         private String frequency;
@@ -242,33 +239,61 @@ public class Prescription implements Serializable {
     
     // Getters and Setters
     public String getPrescriptionId() { return prescriptionId; }
+
     public void setPrescriptionId(String prescriptionId) { this.prescriptionId = prescriptionId; }
+
     public String getCustomerId() { return customerId; }
+
     public void setCustomerId(String customerId) { this.customerId = customerId; }
+
     public String getDoctorId() { return doctorId; }
+
     public void setDoctorId(String doctorId) { this.doctorId = doctorId; }
+
     public String getPatientName() { return patientName; }
+
     public void setPatientName(String patientName) { this.patientName = patientName; }
+
     public String getDoctorName() { return doctorName; }
+
     public void setDoctorName(String doctorName) { this.doctorName = doctorName; }
+
     public Date getIssueDate() { return issueDate; }
+
     public void setIssueDate(Date issueDate) { this.issueDate = issueDate; }
+
     public Date getExpiryDate() { return expiryDate; }
+
     public void setExpiryDate(Date expiryDate) { this.expiryDate = expiryDate; }
+
     public String getDiagnosis() { return diagnosis; }
+
     public void setDiagnosis(String diagnosis) { this.diagnosis = diagnosis; }
+
     public List<Medicine> getMedicines() { return medicines; }
+
     public void setMedicines(List<Medicine> medicines) { this.medicines = medicines; }
+
     public List<String> getInstructions() { return instructions; }
+
     public void setInstructions(List<String> instructions) { this.instructions = instructions; }
+
     public boolean isVerified() { return isVerified; }
+
     public void setVerified(boolean verified) { isVerified = verified; }
+
     public String getPrescriptionImagePath() { return prescriptionImagePath; }
+
     public void setPrescriptionImagePath(String prescriptionImagePath) { this.prescriptionImagePath = prescriptionImagePath; }
+
     public String getVerificationComments() { return verificationComments; }
+
     public void setVerificationComments(String verificationComments) { this.verificationComments = verificationComments; }
+
     public List<MedicineDosage> getMedicinesDosage() { return medicinesDosage; }
+
     public List<Medication> getMedications() { return medications; }
+
     public void setMedications(List<Medication> medications) { this.medications = medications; }
     
     @Override
