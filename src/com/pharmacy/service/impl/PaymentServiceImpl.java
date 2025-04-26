@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 
 /**
  * Implementation of Payment interface for processing payments
+ * Updated by: Student
+ * Date: 11/10/2023
  */
 public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
     
@@ -19,13 +21,18 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
     private Map<String, Object> payments = new HashMap<>();
     private Map<String, String> authCodes = new HashMap<>();
     
+    // Helper method to generate payment ID
+    private String generatePaymentId() {
+        return "PAY-" + System.currentTimeMillis();
+    }
+    
     @Override
     public boolean processPayment(Order order, String... paymentDetails) throws PaymentException {
         if (order == null) {
             throw new PaymentException("Order cannot be null");
         }
         
-        if (order.getTotalAmount() <= 0) {
+        if (order.getTotal() <= 0) {
             throw new PaymentException("Order amount must be greater than zero", "INVALID_AMOUNT");
         }
         
@@ -39,8 +46,8 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             
             // Store payment information
             Map<String, Object> paymentInfo = new HashMap<>();
-            paymentInfo.put("orderId", order.getOrderId());
-            paymentInfo.put("amount", order.getTotalAmount());
+            paymentInfo.put("orderId", order.getID());
+            paymentInfo.put("amount", order.getTotal());
             paymentInfo.put("paymentDate", new Date());
             paymentInfo.put("status", "COMPLETED");
             
@@ -49,7 +56,7 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             // Update order payment status
             order.setPaid(true);
             
-            logger.info("Payment processed successfully for order: " + order.getOrderId());
+            logger.info("Payment processed successfully for order: " + order.getID());
             return true;
         } catch (Exception e) {
             logger.severe("Error processing payment: " + e.getMessage());
@@ -64,11 +71,11 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             throw new PaymentException("Order cannot be null");
         }
         
-        if (!order.isPaid()) {
+        if (!order.getPaid()) {
             throw new PaymentException("Cannot refund an unpaid order", "UNPAID_ORDER");
         }
         
-        if (amount <= 0 || amount > order.getTotalAmount()) {
+        if (amount <= 0 || amount > order.getTotal()) {
             throw new PaymentException("Invalid refund amount", "INVALID_AMOUNT");
         }
         
@@ -78,7 +85,7 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             
             // Store refund information
             Map<String, Object> refundInfo = new HashMap<>();
-            refundInfo.put("orderId", order.getOrderId());
+            refundInfo.put("orderId", order.getID());
             refundInfo.put("refundAmount", amount);
             refundInfo.put("refundDate", new Date());
             refundInfo.put("status", "COMPLETED");
@@ -86,11 +93,11 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             payments.put(refundId, refundInfo);
             
             // If full refund, update order payment status
-            if (amount >= order.getTotalAmount()) {
+            if (amount >= order.getTotal()) {
                 order.setPaid(false);
             }
             
-            logger.info("Refund processed successfully for order: " + order.getOrderId());
+            logger.info("Refund processed successfully for order: " + order.getID());
             return true;
         } catch (Exception e) {
             logger.severe("Error processing refund: " + e.getMessage());
@@ -106,7 +113,7 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
         }
         
         // In a real implementation, this would query the payment gateway
-        return order.isPaid();
+        return order.getPaid();
     }
     
     @Override
@@ -115,17 +122,17 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
             return "No order provided";
         }
         
-        if (!order.isPaid()) {
+        if (!order.getPaid()) {
             return "Order is not paid";
         }
         
         StringBuilder receipt = new StringBuilder();
         receipt.append("=== PAYMENT RECEIPT ===\n");
-        receipt.append("Order ID: ").append(order.getOrderId()).append("\n");
+        receipt.append("Order ID: ").append(order.getID()).append("\n");
         receipt.append("Date: ").append(new Date()).append("\n");
-        receipt.append("Amount: $").append(String.format("%.2f", order.getTotalAmount())).append("\n");
-        receipt.append("Payment Method: ").append(order.getPaymentMethod()).append("\n");
-        receipt.append("Customer ID: ").append(order.getCustomerId()).append("\n");
+        receipt.append("Amount: $").append(String.format("%.2f", order.getTotal())).append("\n");
+        receipt.append("Payment Method: ").append(order.getPayMethod()).append("\n");
+        receipt.append("Customer ID: ").append(order.getCustID()).append("\n");
         receipt.append("Status: PAID\n");
         receipt.append("=====================");
         
@@ -150,39 +157,56 @@ public class PaymentServiceImpl implements Payment, Payment.PaymentAuth {
     }
     
     @Override
-    public String sendAuthCode(String customerId, String contactMethod) {
-        if (customerId == null || contactMethod == null) {
+    public String sendAuthCode(String transactionId, String phoneNumber) {
+        if (transactionId == null || phoneNumber == null) {
             return null;
         }
         
-        // Generate a transaction ID and auth code
-        String transactionId = "TXN" + System.currentTimeMillis();
-        String authCode = generateAuthCode();
+        // Generate a random 6-digit auth code
+        String authCode = String.format("%06d", (int)(Math.random() * 1000000));
         
-        // In a real implementation, this would send the auth code via SMS or email
-        logger.info("Sending auth code " + authCode + " to customer " + customerId + " via " + contactMethod);
-        
-        // Store the auth code for later verification
+        // In a real implementation, this would send the code via SMS
+        // For our demo, we'll just store it
         authCodes.put(transactionId, authCode);
         
-        return transactionId;
+        logger.info("Auth code sent to " + phoneNumber + " for transaction: " + transactionId);
+        return authCode; // In a real implementation, we wouldn't return this
     }
     
-    /**
-     * Generate a unique payment ID
-     * 
-     * @return The generated payment ID
-     */
-    private String generatePaymentId() {
-        return "PAY" + System.currentTimeMillis();
-    }
-    
-    /**
-     * Generate a random 6-digit authentication code
-     * 
-     * @return The generated auth code
-     */
-    private String generateAuthCode() {
-        return String.format("%06d", (int)(Math.random() * 1000000));
+    @Override
+    public boolean validateCardDetails(String cardNumber, String expiryDate, String cvv) {
+        // Basic validation logic for demo purposes
+        
+        // Card number should be 16 digits
+        if (cardNumber == null || !cardNumber.matches("\\d{16}")) {
+            return false;
+        }
+        
+        // Expiry date should be in MM/YY format
+        if (expiryDate == null || !expiryDate.matches("\\d{2}/\\d{2}")) {
+            return false;
+        }
+        
+        // CVV should be 3 digits
+        if (cvv == null || !cvv.matches("\\d{3}")) {
+            return false;
+        }
+        
+        // Perform Luhn algorithm check on card number (simplified version)
+        int sum = 0;
+        boolean alternate = false;
+        for (int i = cardNumber.length() - 1; i >= 0; i--) {
+            int n = Integer.parseInt(cardNumber.substring(i, i + 1));
+            if (alternate) {
+                n *= 2;
+                if (n > 9) {
+                    n = (n % 10) + 1;
+                }
+            }
+            sum += n;
+            alternate = !alternate;
+        }
+        
+        return (sum % 10 == 0);
     }
 } 

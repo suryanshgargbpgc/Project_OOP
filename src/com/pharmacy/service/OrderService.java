@@ -52,10 +52,10 @@ public interface OrderService {
      * Update the status of an order
      * 
      * @param orderId The ID of the order
-     * @param newStatus The new status
+     * @param newStatus The new status as a String
      * @return The updated order
      */
-    Order updateOrderStatus(String orderId, Order.OrderStatus newStatus);
+    Order updateOrderStatus(String orderId, String newStatus);
     
     /**
      * Get an order by ID
