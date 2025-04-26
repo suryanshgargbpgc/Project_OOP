@@ -5,13 +5,15 @@ import java.util.*;
 
 /**
  * A basic prescription written by a doctor for a patient
+ * Written by: Student
+ * Date: 11/10/2023
  */
 public class Prescription {
 
     // Making fields public for simpler access
-    public String prescriptionId;
-    public String customerId;
-    public String doctorId;
+    public String rxID;
+    public String custID;
+    public String docID;
     public String patientName;
     public String doctorName;
     public Date issueDate;
@@ -22,8 +24,8 @@ public class Prescription {
     public String[] instructions;
     public int instructionCount;
     public boolean isVerified;
-    public String prescriptionImagePath; // Path to uploaded prescription image
-    public String verificationComments;
+    public String rxImagePath; // Path to uploaded prescription image
+    public String verifyComments;
     
     // Simple medicine dosage information
     public class MedicineDosage {
@@ -50,7 +52,7 @@ public class Prescription {
         
         // Simple string representation
         public String toString() {
-            String result = medicine.getName() + " - " + dosage + " for " + days + " days";
+            String result = medicine.getMedName() + " - " + dosage + " for " + days + " days";
             if (!notes.equals("")) {
                 result = result + ". Notes: " + notes;
             }
@@ -92,9 +94,9 @@ public class Prescription {
     
     // Simple constructor
     public Prescription() {
-        prescriptionId = UUID.randomUUID().toString();
-        customerId = "";
-        doctorId = "";
+        rxID = UUID.randomUUID().toString();
+        custID = "";
+        docID = "";
         patientName = "";
         doctorName = "";
         issueDate = new Date();
@@ -105,8 +107,8 @@ public class Prescription {
         instructions = new String[10];
         instructionCount = 0;
         isVerified = false;
-        prescriptionImagePath = "";
-        verificationComments = "";
+        rxImagePath = "";
+        verifyComments = "";
         medicinesDosage = new MedicineDosage[10];
         medicineDosageCount = 0;
         medications = new Medication[10];
@@ -114,10 +116,10 @@ public class Prescription {
     }
     
     // Constructor with basic information
-    public Prescription(String customerId, String doctorId, String diagnosis) {
-        prescriptionId = UUID.randomUUID().toString();
-        this.customerId = customerId;
-        this.doctorId = doctorId;
+    public Prescription(String custID, String docID, String diagnosis) {
+        rxID = UUID.randomUUID().toString();
+        this.custID = custID;
+        this.docID = docID;
         patientName = "";
         doctorName = "";
         issueDate = new Date();
@@ -132,12 +134,101 @@ public class Prescription {
         instructions = new String[10];
         instructionCount = 0;
         isVerified = false;
-        prescriptionImagePath = "";
-        verificationComments = "";
+        rxImagePath = "";
+        verifyComments = "";
         medicinesDosage = new MedicineDosage[10];
         medicineDosageCount = 0;
         medications = new Medication[10];
         medicationCount = 0;
+    }
+    
+    // Getter and setter methods
+    public String getPrescriptionId() {
+        return rxID;
+    }
+    
+    public void setPrescriptionId(String id) {
+        this.rxID = id;
+    }
+    
+    public String getCustomerId() {
+        return custID;
+    }
+    
+    public void setCustomerId(String id) {
+        this.custID = id;
+    }
+    
+    public String getDoctorId() {
+        return docID;
+    }
+    
+    public void setDoctorId(String id) {
+        this.docID = id;
+    }
+    
+    public String getPatientName() {
+        return patientName;
+    }
+    
+    public void setPatientName(String name) {
+        this.patientName = name;
+    }
+    
+    public String getDoctorName() {
+        return doctorName;
+    }
+    
+    public void setDoctorName(String name) {
+        this.doctorName = name;
+    }
+    
+    public Date getIssueDate() {
+        return issueDate;
+    }
+    
+    public void setIssueDate(Date date) {
+        this.issueDate = date;
+    }
+    
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+    
+    public void setExpiryDate(Date date) {
+        this.expiryDate = date;
+    }
+    
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+    
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+    
+    public boolean isVerified() {
+        return isVerified;
+    }
+    
+    public void setVerified(boolean verified) {
+        this.isVerified = verified;
+    }
+    
+    public String getImagePath() {
+        return rxImagePath;
+    }
+    
+    public void setImagePath(String path) {
+        this.rxImagePath = path;
+    }
+    
+    public String getVerificationComments() {
+        return verifyComments;
+    }
+    
+    public void setVerificationComments(String comments) {
+        this.verifyComments = comments;
     }
     
     // Check if prescription is still valid
@@ -245,7 +336,7 @@ public class Prescription {
     // Mark prescription as verified
     public void verify(String comments) {
         isVerified = true;
-        verificationComments = comments;
+        verifyComments = comments;
     }
     
     // Check if prescription is expired
@@ -257,7 +348,7 @@ public class Prescription {
     // Check if prescription contains a specific medicine
     public boolean containsMedicine(String medicineId) {
         for (int i = 0; i < medicineCount; i++) {
-            if (medicines[i].getMedicineId().equals(medicineId)) {
+            if (medicines[i].getID().equals(medicineId)) {
                 return true;
             }
         }
@@ -302,25 +393,25 @@ public class Prescription {
     
     // Simple string representation
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Prescription #").append(prescriptionId).append("\n");
-        sb.append("Patient: ").append(patientName).append("\n");
-        sb.append("Doctor: ").append(doctorName).append("\n");
-        sb.append("Diagnosis: ").append(diagnosis).append("\n");
-        sb.append("Date: ").append(issueDate).append("\n");
-        sb.append("Expires: ").append(expiryDate).append("\n");
-        sb.append("Verified: ").append(isVerified ? "Yes" : "No").append("\n");
+        String output = "";
+        output = output + "Prescription #" + rxID + "\n";
+        output = output + "Patient: " + patientName + "\n";
+        output = output + "Doctor: " + doctorName + "\n";
+        output = output + "Diagnosis: " + diagnosis + "\n";
+        output = output + "Date: " + issueDate + "\n";
+        output = output + "Expires: " + expiryDate + "\n";
+        output = output + "Verified: " + (isVerified ? "Yes" : "No") + "\n";
         
-        sb.append("Medicines:\n");
+        output = output + "Medicines:\n";
         for (int i = 0; i < medicineCount; i++) {
-            sb.append("- ").append(medicines[i].getName()).append("\n");
+            output = output + "- " + medicines[i].getMedName() + "\n";
         }
         
-        sb.append("Instructions:\n");
+        output = output + "Instructions:\n";
         for (int i = 0; i < instructionCount; i++) {
-            sb.append("- ").append(instructions[i]).append("\n");
+            output = output + "- " + instructions[i] + "\n";
         }
         
-        return sb.toString();
+        return output;
     }
 } 
