@@ -16,7 +16,7 @@ import java.util.Scanner;
  * Main class to demonstrate the Online Pharmacy System
  */
 public class Main {
-    
+
     private static final Logger logger = Logger.getLogger(Main.class.getName());
     
     public static void main(String[] args) {
@@ -133,37 +133,29 @@ public class Main {
         List<Medicine> medicines = new ArrayList<>();
         
         Medicine medicine1 = new Medicine("MED001", "Paracetamol", 5.99, false);
-        medicine1.setManufacturer("PharmaCorp");
         medicine1.setDescription("Pain reliever and fever reducer");
         medicine1.setCategory("OTC");
-        medicine1.setDosageForm("Tablet");
         medicine1.setStock(100);
         medicine1.addSideEffects("Nausea", "Rash (in rare cases)");
         medicines.add(medicine1);
         
         Medicine medicine2 = new Medicine("MED002", "Cetirizine", 8.99, false);
-        medicine2.setManufacturer("AllergiCare");
         medicine2.setDescription("Antihistamine for allergy relief");
         medicine2.setCategory("OTC");
-        medicine2.setDosageForm("Tablet");
         medicine2.setStock(75);
         medicine2.addSideEffects("Drowsiness", "Dry mouth");
         medicines.add(medicine2);
         
         Medicine medicine3 = new Medicine("MED003", "Amoxicillin", 12.99, true);
-        medicine3.setManufacturer("BacteriaCure");
         medicine3.setDescription("Antibiotic for bacterial infections");
         medicine3.setCategory("Prescription");
-        medicine3.setDosageForm("Capsule");
         medicine3.setStock(50);
         medicine3.addSideEffects("Diarrhea", "Nausea", "Rash");
         medicines.add(medicine3);
         
         Medicine medicine4 = new Medicine("MED004", "Insulin Glargine", 45.99, true);
-        medicine4.setManufacturer("DiabeCare");
         medicine4.setDescription("Long-acting insulin for diabetes management");
         medicine4.setCategory("Prescription");
-        medicine4.setDosageForm("Injectable Solution");
         medicine4.setStock(30);
         medicine4.addSideEffects("Hypoglycemia", "Injection site reactions");
         medicines.add(medicine4);
@@ -205,8 +197,7 @@ public class Main {
             System.out.printf("%-8s %-20s %-15s %-12.2f %-15s %-6d %-15s\n", 
                             medicine.getMedicineId(), 
                             medicine.getName(), 
-                            medicine.getManufacturer(), 
-                            medicine.getPrice(), 
+                            medicine.getPrice(),
                             medicine.getCategory(), 
                             medicine.getStock(), 
                             medicine.isRequiresPrescription() ? "Yes" : "No");
@@ -253,7 +244,7 @@ public class Main {
         System.out.println("Medicines:");
         
         for (Medicine medicine : prescription.getMedicines()) {
-            System.out.println("- " + medicine.getName() + " (" + medicine.getDosageForm() + ")");
+            System.out.println("- " + medicine.getName());
         }
         
         // Add the prescription to the customer

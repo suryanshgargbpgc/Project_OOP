@@ -9,7 +9,7 @@ import java.util.List;
  * Order class represents a customer's medicine order
  */
 public class Order implements Serializable {
-    private static final long serialVersionUID = 1L;
+
     
     // Enum for order status
     public enum OrderStatus {
@@ -31,7 +31,7 @@ public class Order implements Serializable {
         UPI,
         WALLET,
         CASH_ON_DELIVERY,
-        INSURANCE
+
     }
     
     private String orderId;

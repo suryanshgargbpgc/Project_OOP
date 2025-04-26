@@ -10,7 +10,6 @@ import java.util.List;
 public class Medicine {
     private String medicineId;
     private String name;
-    private String manufacturer;
     private double price;
     private int stock;
     private String description;
@@ -19,13 +18,11 @@ public class Medicine {
     private Date expiryDate;
     private List<String> sideEffects;
     private String category; // OTC, Prescription, Generic, etc.
-    private String dosageForm; // Tablet, Capsule, Syrup, etc.
-    
+
     // Default constructor
     public Medicine() {
         this.medicineId = "";
         this.name = "";
-        this.manufacturer = "";
         this.price = 0.0;
         this.stock = 0;
         this.description = "";
@@ -34,14 +31,12 @@ public class Medicine {
         this.expiryDate = new Date();
         this.sideEffects = new ArrayList<>();
         this.category = "";
-        this.dosageForm = "";
     }
     
     // Constructor with basic information
     public Medicine(String medicineId, String name, double price, boolean requiresPrescription) {
         this.medicineId = medicineId;
         this.name = name;
-        this.manufacturer = "";
         this.price = price;
         this.stock = 0;
         this.description = "";
@@ -50,16 +45,14 @@ public class Medicine {
         this.expiryDate = new Date();
         this.sideEffects = new ArrayList<>();
         this.category = "";
-        this.dosageForm = "";
     }
     
     // Full constructor
-    public Medicine(String medicineId, String name, String manufacturer, double price,
+    public Medicine(String medicineId, String name, double price,
                    int stock, String description, boolean requiresPrescription,
-                   Date manufactureDate, Date expiryDate, String category, String dosageForm) {
+                   Date manufactureDate, Date expiryDate, String category) {
         this.medicineId = medicineId;
         this.name = name;
-        this.manufacturer = manufacturer;
         this.price = price;
         this.stock = stock;
         this.description = description;
@@ -68,7 +61,6 @@ public class Medicine {
         this.expiryDate = expiryDate;
         this.sideEffects = new ArrayList<>();
         this.category = category;
-        this.dosageForm = dosageForm;
     }
     
     // Method to check if medicine is in stock
@@ -118,14 +110,6 @@ public class Medicine {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getManufacturer() {
-        return manufacturer;
-    }
-
-    public void setManufacturer(String manufacturer) {
-        this.manufacturer = manufacturer;
     }
 
     public double getPrice() {
@@ -192,25 +176,16 @@ public class Medicine {
         this.category = category;
     }
 
-    public String getDosageForm() {
-        return dosageForm;
-    }
-
-    public void setDosageForm(String dosageForm) {
-        this.dosageForm = dosageForm;
-    }
     
     @Override
     public String toString() {
         return "Medicine{" +
                 "medicineId='" + medicineId + '\'' +
                 ", name='" + name + '\'' +
-                ", manufacturer='" + manufacturer + '\'' +
                 ", price=" + price +
                 ", stock=" + stock +
                 ", requiresPrescription=" + requiresPrescription +
                 ", category='" + category + '\'' +
-                ", dosageForm='" + dosageForm + '\'' +
                 '}';
     }
 } 
