@@ -1,8 +1,6 @@
 package com.pharmacy.model;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Doctor class represents medical professionals who can issue prescriptions
@@ -14,7 +12,8 @@ public class Doctor extends User {
     private boolean isAvailableForTeleconsultation;
     private String qualification;
     private int yearsOfExperience;
-    private List<String> availableTimeSlots;
+    private String[] availableTimeSlots;
+    private int timeSlotCount;
     private double consultationFee;
     
     // Default constructor
@@ -25,7 +24,8 @@ public class Doctor extends User {
         this.isAvailableForTeleconsultation = false;
         this.qualification = "";
         this.yearsOfExperience = 0;
-        this.availableTimeSlots = new ArrayList<>();
+        this.availableTimeSlots = new String[10]; // Initial capacity
+        this.timeSlotCount = 0;
         this.consultationFee = 0.0;
     }
     
@@ -38,7 +38,8 @@ public class Doctor extends User {
         this.isAvailableForTeleconsultation = false;
         this.qualification = "";
         this.yearsOfExperience = 0;
-        this.availableTimeSlots = new ArrayList<>();
+        this.availableTimeSlots = new String[10]; // Initial capacity
+        this.timeSlotCount = 0;
         this.consultationFee = 0.0;
     }
     
@@ -53,7 +54,8 @@ public class Doctor extends User {
         this.isAvailableForTeleconsultation = isAvailableForTeleconsultation;
         this.qualification = qualification;
         this.yearsOfExperience = yearsOfExperience;
-        this.availableTimeSlots = new ArrayList<>();
+        this.availableTimeSlots = new String[10]; // Initial capacity
+        this.timeSlotCount = 0;
         this.consultationFee = consultationFee;
     }
     
@@ -89,7 +91,14 @@ public class Doctor extends User {
     // Vararg method to add available time slots
     public void addTimeSlots(String... slots) {
         for (String slot : slots) {
-            this.availableTimeSlots.add(slot);
+            // Resize array if needed
+            if (timeSlotCount >= availableTimeSlots.length) {
+                String[] newTimeSlots = new String[availableTimeSlots.length * 2];
+                System.arraycopy(availableTimeSlots, 0, newTimeSlots, 0, availableTimeSlots.length);
+                availableTimeSlots = newTimeSlots;
+            }
+            
+            this.availableTimeSlots[timeSlotCount++] = slot;
         }
     }
     
@@ -134,12 +143,16 @@ public class Doctor extends User {
         this.yearsOfExperience = yearsOfExperience;
     }
 
-    public List<String> getAvailableTimeSlots() {
-        return availableTimeSlots;
+    public String[] getAvailableTimeSlots() {
+        // Return a trimmed array with only the filled elements
+        String[] result = new String[timeSlotCount];
+        System.arraycopy(availableTimeSlots, 0, result, 0, timeSlotCount);
+        return result;
     }
 
-    public void setAvailableTimeSlots(List<String> availableTimeSlots) {
+    public void setAvailableTimeSlots(String[] availableTimeSlots) {
         this.availableTimeSlots = availableTimeSlots;
+        this.timeSlotCount = availableTimeSlots.length;
     }
 
     public double getConsultationFee() {

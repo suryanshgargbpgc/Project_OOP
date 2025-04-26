@@ -1,7 +1,6 @@
 package com.pharmacy.service;
 
 import com.pharmacy.model.Medicine;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,10 +11,10 @@ public interface MedicineRecommendationSystem {
     /**
      * Get recommended over-the-counter medicines based on symptoms
      * 
-     * @param symptoms List of symptoms
-     * @return List of recommended medicines
+     * @param symptoms Array of symptoms
+     * @return Array of recommended medicines
      */
-    List<Medicine> recommendMedicinesForSymptoms(List<String> symptoms);
+    Medicine[] recommendMedicinesForSymptoms(String[] symptoms);
     
     /**
      * Get detailed information about a symptom
@@ -28,50 +27,50 @@ public interface MedicineRecommendationSystem {
     /**
      * Check if symptoms require medical attention
      * 
-     * @param symptoms List of symptoms
+     * @param symptoms Array of symptoms
      * @return true if medical attention is recommended, false otherwise
      */
-    boolean isMedicalAttentionRequired(List<String> symptoms);
+    boolean isMedicalAttentionRequired(String[] symptoms);
     
     /**
      * Get recommended specialists based on symptoms
      * 
-     * @param symptoms List of symptoms
+     * @param symptoms Array of symptoms
      * @return Map of specialist types and their relevance scores
      */
-    Map<String, Double> getRecommendedSpecialists(List<String> symptoms);
+    Map<String, Double> getRecommendedSpecialists(String[] symptoms);
     
     /**
      * Get precautions for specific symptoms
      * 
-     * @param symptoms List of symptoms
-     * @return List of precautions to take
+     * @param symptoms Array of symptoms
+     * @return Array of precautions to take
      */
-    List<String> getPrecautionsForSymptoms(List<String> symptoms);
+    String[] getPrecautionsForSymptoms(String[] symptoms);
     
     /**
      * Get potential side effects of recommended medicines
      * 
-     * @param medicineIds List of medicine IDs
+     * @param medicineIds Array of medicine IDs
      * @return Map of medicine IDs and their side effects
      */
-    Map<String, List<String>> getPotentialSideEffects(List<String> medicineIds);
+    Map<String, String[]> getPotentialSideEffects(String[] medicineIds);
     
     /**
      * Check for medicine interactions
      * 
-     * @param medicineIds List of medicine IDs to check for interactions
+     * @param medicineIds Array of medicine IDs to check for interactions
      * @return Map of interaction information
      */
-    Map<String, Object> checkMedicineInteractions(List<String> medicineIds);
+    Map<String, Object> checkMedicineInteractions(String[] medicineIds);
     
     /**
      * Provide health advice for specific conditions
      * 
      * @param condition The health condition
-     * @return List of advice
+     * @return Array of advice
      */
-    List<String> getHealthAdvice(String condition);
+    String[] getHealthAdvice(String condition);
     
     /**
      * Get suggested dosage for an OTC medicine based on age and weight

@@ -33,7 +33,7 @@ public class Main {
             // Create demo data
             Customer customer = createDemoCustomer();
             Doctor doctor = createDemoDoctor();
-            List<Medicine> medicines = createDemoMedicines();
+            Medicine[] medicines = createDemoMedicines();
             
             // Display menu
             Scanner scanner = new Scanner(System.in);
@@ -129,36 +129,36 @@ public class Main {
         return doctor;
     }
     
-    private static List<Medicine> createDemoMedicines() {
-        List<Medicine> medicines = new ArrayList<>();
+    private static Medicine[] createDemoMedicines() {
+        Medicine[] medicines = new Medicine[4];
         
         Medicine medicine1 = new Medicine("MED001", "Paracetamol", 5.99, false);
         medicine1.setDescription("Pain reliever and fever reducer");
         medicine1.setCategory("OTC");
         medicine1.setStock(100);
         medicine1.addSideEffects("Nausea", "Rash (in rare cases)");
-        medicines.add(medicine1);
+        medicines[0] = medicine1;
         
         Medicine medicine2 = new Medicine("MED002", "Cetirizine", 8.99, false);
         medicine2.setDescription("Antihistamine for allergy relief");
         medicine2.setCategory("OTC");
         medicine2.setStock(75);
         medicine2.addSideEffects("Drowsiness", "Dry mouth");
-        medicines.add(medicine2);
+        medicines[1] = medicine2;
         
         Medicine medicine3 = new Medicine("MED003", "Amoxicillin", 12.99, true);
         medicine3.setDescription("Antibiotic for bacterial infections");
         medicine3.setCategory("Prescription");
         medicine3.setStock(50);
         medicine3.addSideEffects("Diarrhea", "Nausea", "Rash");
-        medicines.add(medicine3);
+        medicines[2] = medicine3;
         
         Medicine medicine4 = new Medicine("MED004", "Insulin Glargine", 45.99, true);
         medicine4.setDescription("Long-acting insulin for diabetes management");
         medicine4.setCategory("Prescription");
         medicine4.setStock(30);
         medicine4.addSideEffects("Hypoglycemia", "Injection site reactions");
-        medicines.add(medicine4);
+        medicines[3] = medicine4;
         
         return medicines;
     }
@@ -170,8 +170,8 @@ public class Main {
         System.out.println("Email: " + customer.getEmail());
         System.out.println("Phone: " + customer.getPhoneNumber());
         System.out.println("Address: " + customer.getAddress());
-        System.out.println("Health Conditions: " + customer.getHealthConditions());
-        System.out.println("Allergies: " + customer.getAllergies());
+        System.out.println("Health Conditions: " + Arrays.toString(customer.getHealthConditions()));
+        System.out.println("Allergies: " + Arrays.toString(customer.getAllergies()));
         System.out.println("Loyalty Tier: " + customer.getLoyaltyProgram().getTier());
         
         System.out.println("\n===== DOCTOR INFORMATION =====");
@@ -185,10 +185,10 @@ public class Main {
         System.out.println("Experience: " + doctor.getYearsOfExperience() + " years");
         System.out.println("Available for Teleconsultation: " + doctor.isAvailableForTeleconsultation());
         System.out.println("Consultation Fee: $" + doctor.getConsultationFee());
-        System.out.println("Available Time Slots: " + doctor.getAvailableTimeSlots());
+        System.out.println("Available Time Slots: " + Arrays.toString(doctor.getAvailableTimeSlots()));
     }
     
-    private static void displayMedicines(List<Medicine> medicines) {
+    private static void displayMedicines(Medicine[] medicines) {
         System.out.println("\n===== AVAILABLE MEDICINES =====");
         System.out.printf("%-8s %-20s %-15s %-12s %-15s %-6s %-15s\n", 
                          "ID", "Name", "Manufacturer", "Price ($)", "Category", "Stock", "Requires Rx");
@@ -198,248 +198,301 @@ public class Main {
                             medicine.getMedicineId(), 
                             medicine.getName(), 
                             medicine.getPrice(),
+                            medicine.getPrice(), 
                             medicine.getCategory(), 
                             medicine.getStock(), 
-                            medicine.isRequiresPrescription() ? "Yes" : "No");
+                            medicine.isRequiresPrescription());
         }
     }
     
-    private static void createAndDisplayPrescription(Doctor doctor, Customer customer, List<Medicine> medicines) {
+    private static void createAndDisplayPrescription(Doctor doctor, Customer customer, Medicine[] medicines) {
         System.out.println("\n===== CREATING PRESCRIPTION =====");
         
-        // Find non-OTC medicines
-        List<Medicine> prescriptionMedicines = new ArrayList<>();
-        for (Medicine medicine : medicines) {
-            if (medicine.isRequiresPrescription()) {
-                prescriptionMedicines.add(medicine);
-            }
-        }
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter diagnosis: ");
+        String diagnosis = scanner.nextLine();
         
-        if (prescriptionMedicines.isEmpty()) {
-            System.out.println("No prescription medicines available.");
-            return;
-        }
+        // Select medicines for prescription
+        Medicine[] prescriptionMedicines = new Medicine[2]; // We'll use 2 medicines for demo
+        prescriptionMedicines[0] = medicines[2]; // Amoxicillin
+        prescriptionMedicines[1] = medicines[0]; // Paracetamol
         
-        // Display available prescription medicines
-        System.out.println("Available prescription medicines:");
-        for (int i = 0; i < prescriptionMedicines.size(); i++) {
-            Medicine medicine = prescriptionMedicines.get(i);
-            System.out.println((i + 1) + ". " + medicine.getName() + " - " + medicine.getDescription());
-        }
+        // Create prescription
+        Prescription prescription = doctor.issuePrescription(customer, diagnosis, prescriptionMedicines);
         
-        // Create the prescription using the first medicine (in a real system, doctor would choose)
-        Medicine selectedMedicine = prescriptionMedicines.get(0);
-        String diagnosis = "Bacterial Infection";
+        // Add instructions
+        prescription.addInstructions(
+            "Take medications as prescribed",
+            "Drink plenty of fluids",
+            "Rest well and avoid strenuous activities",
+            "Contact doctor if symptoms worsen"
+        );
         
-        Prescription prescription = doctor.issuePrescription(customer, diagnosis, selectedMedicine);
+        // Verify the prescription
+        prescription.verify("Prescription verified by Dr. " + doctor.getName());
         
-        // Display the prescription details
-        System.out.println("\nPrescription created successfully.");
-        System.out.println("Prescription ID: " + prescription.getPrescriptionId());
-        System.out.println("Doctor: " + prescription.getDoctorName());
-        System.out.println("Patient: " + prescription.getPatientName());
-        System.out.println("Diagnosis: " + prescription.getDiagnosis());
-        System.out.println("Issue Date: " + prescription.getIssueDate());
-        System.out.println("Expiry Date: " + prescription.getExpiryDate());
-        System.out.println("Medicines:");
+        // Display prescription details
+        System.out.println("\n===== PRESCRIPTION DETAILS =====");
+        System.out.println(prescription.toString());
         
-        for (Medicine medicine : prescription.getMedicines()) {
-            System.out.println("- " + medicine.getName());
-        }
-        
-        // Add the prescription to the customer
+        // Add prescription to customer records
         customer.addPrescription(prescription);
+        System.out.println("Prescription added to customer records successfully.");
     }
     
-    private static void placeAndDisplayOrder(Customer customer, List<Medicine> medicines) throws PaymentException {
+    private static void placeAndDisplayOrder(Customer customer, Medicine[] medicines) throws PaymentException {
         System.out.println("\n===== PLACING ORDER =====");
         
         // Create a new order
         Order order = new Order(customer.getUserId(), customer.getAddress());
         
-        // Add medicines to the order (in a real system, customer would choose)
-        Medicine medicine1 = medicines.get(0); // Paracetamol
-        Medicine medicine2 = medicines.get(1); // Cetirizine
+        // Add medicines to order
+        order.addItem(medicines[0], 2); // 2 units of Paracetamol
+        order.addItem(medicines[1], 1); // 1 unit of Cetirizine
         
-        order.addItem(medicine1, 2);
-        order.addItem(medicine2, 1);
-        
-        // Display order details
-        System.out.println("Order created with the following items:");
+        // Display order summary before payment
+        System.out.println("\n===== ORDER SUMMARY =====");
+        System.out.println("Order ID: " + order.getOrderId());
+        System.out.println("Customer: " + customer.getName());
+        System.out.println("Items:");
         for (Order.OrderItem item : order.getOrderItems()) {
-            System.out.println("- " + item.getMedicine().getName() + " x " + item.getQuantity() + 
-                             " @ $" + item.getPrice() + " = $" + item.getTotalPrice());
+            System.out.println("- " + item.toString());
         }
+        System.out.println("Total Amount: $" + order.getTotalAmount());
         
         // Process payment
-        order.processPayment(Order.PaymentMethod.CREDIT_CARD);
-        order.updateStatus(Order.OrderStatus.CONFIRMED);
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("\nSelect payment method:");
+        System.out.println("1. Credit Card");
+        System.out.println("2. Debit Card");
+        System.out.println("3. Cash on Delivery");
         
-        // Generate tracking number
-        order.generateTrackingNumber();
+        System.out.print("Enter your choice (1-3): ");
+        int choice = scanner.nextInt();
         
-        // Display order summary
-        System.out.println("\nOrder Summary:");
-        System.out.println("Order ID: " + order.getOrderId());
-        System.out.println("Customer ID: " + order.getCustomerId());
-        System.out.println("Total Amount: $" + order.getTotalAmount());
-        System.out.println("Payment Method: " + order.getPaymentMethod());
-        System.out.println("Shipping Address: " + order.getShippingAddress());
-        System.out.println("Order Status: " + order.getStatus());
-        System.out.println("Tracking Number: " + order.getTrackingNumber());
+        Order.PaymentMethod paymentMethod;
+        switch (choice) {
+            case 1:
+                paymentMethod = Order.PaymentMethod.CREDIT_CARD;
+                break;
+            case 2:
+                paymentMethod = Order.PaymentMethod.DEBIT_CARD;
+                break;
+            case 3:
+                paymentMethod = Order.PaymentMethod.CASH_ON_DELIVERY;
+                break;
+            default:
+                paymentMethod = Order.PaymentMethod.CASH_ON_DELIVERY;
+        }
         
-        // Add the order to the customer
-        customer.addOrder(order);
+        boolean paymentSuccessful = order.processPayment(paymentMethod);
+        
+        if (paymentSuccessful) {
+            System.out.println("\nPayment successful!");
+            order.updateStatus(Order.OrderStatus.CONFIRMED);
+            order.generateTrackingNumber();
+            
+            // Add order to customer records
+            customer.addOrder(order);
+            
+            // Display final order details
+            System.out.println("\n===== ORDER CONFIRMED =====");
+            System.out.println("Order ID: " + order.getOrderId());
+            System.out.println("Status: " + order.getStatus());
+            System.out.println("Tracking Number: " + order.getTrackingNumber());
+            System.out.println("Customer earned " + ((int)(order.getTotalAmount() * 10)) + " loyalty points!");
+        } else {
+            throw new PaymentException("Payment failed. Please try again.");
+        }
     }
     
     private static void getMedicineRecommendations(MedicineRecommendationSystem recommendationSystem) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("\n===== MEDICINE RECOMMENDATIONS BASED ON SYMPTOMS =====");
+        System.out.println("\n===== MEDICINE RECOMMENDATIONS =====");
         
-        System.out.println("Enter your symptoms (comma-separated):");
+        // Get symptoms from user
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter symptoms (comma separated):");
         String symptomsInput = scanner.nextLine();
         
-        // Parse symptoms
-        String[] symptomsArray = symptomsInput.split(",");
-        List<String> symptoms = new ArrayList<>();
-        for (String symptom : symptomsArray) {
-            symptoms.add(symptom.trim());
+        String[] symptoms = symptomsInput.split(",");
+        for (int i = 0; i < symptoms.length; i++) {
+            symptoms[i] = symptoms[i].trim();
         }
         
         // Check if medical attention is required
-        if (recommendationSystem.isMedicalAttentionRequired(symptoms)) {
-            System.out.println("\nWARNING: Your symptoms may require immediate medical attention. Please consult a healthcare professional.");
-        }
+        boolean needsMedicalAttention = recommendationSystem.isMedicalAttentionRequired(symptoms);
         
-        // Get recommended medicines
-        List<Medicine> recommendedMedicines = recommendationSystem.recommendMedicinesForSymptoms(symptoms);
-        
-        if (recommendedMedicines.isEmpty()) {
-            System.out.println("\nNo specific OTC medications found for your symptoms. Please consult a healthcare professional.");
-        } else {
-            System.out.println("\nRecommended over-the-counter medications for your symptoms:");
-            for (Medicine medicine : recommendedMedicines) {
-                System.out.println("- " + medicine.getName() + ": " + medicine.getDescription());
-            }
-        }
-        
-        // Get precautions
-        List<String> precautions = recommendationSystem.getPrecautionsForSymptoms(symptoms);
-        if (!precautions.isEmpty()) {
-            System.out.println("\nRecommended precautions:");
-            for (String precaution : precautions) {
-                System.out.println("- " + precaution);
-            }
-        }
-        
-        // Get recommended specialists if applicable
-        Map<String, Double> specialists = recommendationSystem.getRecommendedSpecialists(symptoms);
-        if (!specialists.isEmpty()) {
-            System.out.println("\nYou may want to consult the following specialists:");
+        if (needsMedicalAttention) {
+            System.out.println("\nWARNING: Based on your symptoms, immediate medical attention may be required.");
+            System.out.println("Please consult a healthcare professional or visit an emergency room.");
+            
+            Map<String, Double> specialists = recommendationSystem.getRecommendedSpecialists(symptoms);
+            
+            System.out.println("\nRecommended Specialists:");
             for (Map.Entry<String, Double> entry : specialists.entrySet()) {
-                System.out.println("- " + entry.getKey());
+                System.out.printf("- %s (Confidence: %.1f%%)\n", entry.getKey(), entry.getValue() * 100);
+            }
+        } else {
+            // Get medicine recommendations
+            Medicine[] recommendedMedicines = recommendationSystem.recommendMedicinesForSymptoms(symptoms);
+            
+            if (recommendedMedicines.length > 0) {
+                System.out.println("\nRecommended Medicines:");
+                for (Medicine medicine : recommendedMedicines) {
+                    System.out.println("- " + medicine.getName() + " (" + medicine.getDescription() + ")");
+                    System.out.println("  Price: $" + medicine.getPrice());
+                    System.out.println("  Requires Prescription: " + (medicine.isRequiresPrescription() ? "Yes" : "No"));
+                    System.out.println("  Possible Side Effects: " + Arrays.toString(medicine.getSideEffects()));
+                    System.out.println();
+                }
+            } else {
+                System.out.println("No specific medications recommended for the symptoms provided.");
+            }
+            
+            // Get precautions
+            String[] precautions = recommendationSystem.getPrecautionsForSymptoms(symptoms);
+            
+            if (precautions.length > 0) {
+                System.out.println("\nRecommended Precautions:");
+                for (String precaution : precautions) {
+                    System.out.println("- " + precaution);
+                }
             }
         }
     }
     
     private static void scheduleMedicationReminder(NotificationManager notificationManager, Customer customer) {
-        System.out.println("\n===== SCHEDULE MEDICATION REMINDER =====");
+        System.out.println("\n===== MEDICATION REMINDER SETUP =====");
         
-        // Schedule reminders (in a real system, this would be based on user input)
-        System.out.println("Scheduling medication reminders...");
+        Scanner scanner = new Scanner(System.in);
         
-        // Schedule email reminder
-        notificationManager.scheduleReminder(
-            customer.getEmail(),
-            "Remember to take your Paracetamol medication.",
-            1, // 1 second for demo purposes (would be hours in a real system)
-            "email"
+        System.out.println("Let's set up a medication reminder");
+        System.out.print("Enter medication name: ");
+        String medicationName = scanner.nextLine();
+        
+        System.out.print("Enter dosage instructions: ");
+        String dosage = scanner.nextLine();
+        
+        System.out.print("When do you need to take this medication? (e.g., 'Morning', 'Evening'): ");
+        String time = scanner.nextLine();
+        
+        System.out.print("How many hours from now for the first reminder? ");
+        int hours = scanner.nextInt();
+        
+        // Create the reminder
+        String reminderMessage = String.format("Time to take %s (%s). %s", 
+                                medicationName, dosage, time);
+        
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, hours);
+        Date reminderTime = calendar.getTime();
+        
+        // Schedule the reminder
+        notificationManager.scheduleNotification(
+            customer.getUserId(),
+            reminderMessage,
+            reminderTime,
+            NotificationType.MEDICATION_REMINDER
         );
         
-        // Schedule SMS reminder
-        notificationManager.scheduleReminder(
-            customer.getPhoneNumber(),
-            "Remember to take your Cetirizine medication.",
-            2, // 2 seconds for demo purposes
-            "sms"
-        );
-        
-        System.out.println("Reminders scheduled successfully!");
-        System.out.println("Email reminder will be sent to: " + customer.getEmail());
-        System.out.println("SMS reminder will be sent to: " + customer.getPhoneNumber());
-        
-        // Wait a bit to allow some reminders to be sent
-        try {
-            System.out.println("Waiting for reminders to be processed...");
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        System.out.println("\nReminder scheduled successfully for " + reminderTime);
+        System.out.println("You will receive a notification: \"" + reminderMessage + "\"");
     }
     
     private static void demonstrateMultithreading(NotificationManager notificationManager) throws InterruptedException {
-        System.out.println("\n===== DEMONSTRATING MULTITHREADING =====");
+        System.out.println("\n===== MULTITHREADING DEMONSTRATION =====");
+        System.out.println("Simulating multiple concurrent operations in the pharmacy system...");
         
-        final int NUM_NOTIFICATIONS = 5;
-        final CountDownLatch latch = new CountDownLatch(NUM_NOTIFICATIONS);
+        // CountDownLatch to wait for all threads to complete
+        final int THREAD_COUNT = 5;
+        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
         
-        System.out.println("Sending multiple notifications simultaneously using thread pool...");
+        // Create and start threads for different operations
+        Thread orderProcessingThread = new Thread(() -> {
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Processing orders...");
+            try { Thread.sleep(1000); } catch (InterruptedException e) { }
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Orders processed.");
+            latch.countDown();
+        });
         
-        // Create a custom notification task that counts down the latch
-        for (int i = 1; i <= NUM_NOTIFICATIONS; i++) {
-            final int notificationNumber = i;
-            notificationManager.notificationExecutor.submit(() -> {
-                try {
-                    System.out.println("Processing notification #" + notificationNumber + " on thread: " + 
-                                     Thread.currentThread().getName());
-                    // Simulate varying processing times
-                    Thread.sleep(notificationNumber * 300);
-                    System.out.println("Notification #" + notificationNumber + " processed successfully.");
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
+        Thread inventoryUpdateThread = new Thread(() -> {
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Updating inventory...");
+            try { Thread.sleep(1500); } catch (InterruptedException e) { }
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Inventory updated.");
+            latch.countDown();
+        });
         
-        // Wait for all notifications to complete
-        System.out.println("Waiting for all notifications to complete...");
+        Thread notificationThread = new Thread(() -> {
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Sending notifications...");
+            try { Thread.sleep(800); } catch (InterruptedException e) { }
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Notifications sent.");
+            latch.countDown();
+        });
+        
+        Thread prescriptionVerificationThread = new Thread(() -> {
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Verifying prescriptions...");
+            try { Thread.sleep(1200); } catch (InterruptedException e) { }
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Prescriptions verified.");
+            latch.countDown();
+        });
+        
+        Thread reportGenerationThread = new Thread(() -> {
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Generating reports...");
+            try { Thread.sleep(2000); } catch (InterruptedException e) { }
+            System.out.println("[Thread " + Thread.currentThread().getId() + "] Reports generated.");
+            latch.countDown();
+        });
+        
+        // Start all threads
+        orderProcessingThread.start();
+        inventoryUpdateThread.start();
+        notificationThread.start();
+        prescriptionVerificationThread.start();
+        reportGenerationThread.start();
+        
+        // Wait for all threads to complete
+        System.out.println("Waiting for all operations to complete...");
         latch.await();
-        System.out.println("All notifications processed successfully using multiple threads!");
+        System.out.println("All concurrent operations completed successfully!");
     }
     
     private static void demonstrateEncryption() {
-        System.out.println("\n===== DEMONSTRATING ENCRYPTION FOR HEALTH DATA =====");
+        System.out.println("\n===== ENCRYPTION DEMONSTRATION =====");
+        
+        // Sample sensitive data
+        String patientData = "Name: John Smith, DOB: 1985-03-12, Condition: Hypertension, Medication: Lisinopril 10mg";
+        
+        System.out.println("Original sensitive data:");
+        System.out.println(patientData);
         
         try {
-            // Generate encryption key and IV
-            String key = SecurityUtil.generateAESKey();
-            String iv = SecurityUtil.generateIV();
+            // Generate encryption key
+            System.out.println("\nGenerating encryption key...");
+            String encryptionKey = EncryptionUtil.generateKey();
             
-            System.out.println("Generated encryption key and initialization vector.");
+            // Encrypt data
+            System.out.println("Encrypting patient data...");
+            String encryptedData = EncryptionUtil.encrypt(patientData, encryptionKey);
             
-            // Sample health data to encrypt
-            String healthData = "Patient has hypertension and is taking Lisinopril 10mg daily.";
-            System.out.println("\nOriginal health data: " + healthData);
+            System.out.println("\nEncrypted data (would be stored in database or transmitted):");
+            System.out.println(encryptedData);
             
-            // Encrypt the data
-            String encryptedData = SecurityUtil.encryptAES(healthData, key, iv);
-            System.out.println("Encrypted health data: " + encryptedData);
+            // Decrypt data
+            System.out.println("\nDecrypting patient data...");
+            String decryptedData = EncryptionUtil.decrypt(encryptedData, encryptionKey);
             
-            // Decrypt the data
-            String decryptedData = SecurityUtil.decryptAES(encryptedData, key, iv);
-            System.out.println("Decrypted health data: " + decryptedData);
+            System.out.println("\nDecrypted data:");
+            System.out.println(decryptedData);
             
-            // Verify decryption worked correctly
-            if (healthData.equals(decryptedData)) {
-                System.out.println("\nEncryption and decryption successful! The data is protected during transmission and storage.");
+            // Verify data integrity
+            if (patientData.equals(decryptedData)) {
+                System.out.println("\nEncryption and decryption successful - data integrity maintained!");
             } else {
-                System.out.println("\nError: Decrypted data does not match original data.");
+                System.out.println("\nError: Decrypted data does not match original data!");
             }
             
         } catch (Exception e) {
-            System.out.println("Error demonstrating encryption: " + e.getMessage());
+            System.out.println("Error during encryption process: " + e.getMessage());
         }
     }
 } 
