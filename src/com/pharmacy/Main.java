@@ -186,6 +186,7 @@ public class Main {
     }
     
     // Create a prescription
+    // pull check
     public static void makePrescription(Doctor doctor, Customer customer, Medicine[] meds) {
         System.out.println("\n------ CREATE PRESCRIPTION ------");
         
