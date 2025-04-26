@@ -121,9 +121,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
     
     @Override
-    public List<Prescription> getCustomerPrescriptions(String customerId) {
+    public Prescription[] getCustomerPrescriptions(String customerId) {
         if (customerId == null || customerId.isEmpty()) {
-            return new ArrayList<>();
+            return new Prescription[0];
         }
         
         List<Prescription> customerPrescriptions = new ArrayList<>();
@@ -133,13 +133,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             }
         }
         
-        return customerPrescriptions;
+        // Convert list to array
+        Prescription[] result = new Prescription[customerPrescriptions.size()];
+        return customerPrescriptions.toArray(result);
     }
     
     @Override
-    public List<Prescription> getValidPrescriptions(String customerId) {
+    public Prescription[] getValidPrescriptions(String customerId) {
         if (customerId == null || customerId.isEmpty()) {
-            return new ArrayList<>();
+            return new Prescription[0];
         }
         
         List<Prescription> validPrescriptions = new ArrayList<>();
@@ -153,7 +155,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             }
         }
         
-        return validPrescriptions;
+        // Convert list to array
+        Prescription[] result = new Prescription[validPrescriptions.size()];
+        return validPrescriptions.toArray(result);
     }
     
     @Override
