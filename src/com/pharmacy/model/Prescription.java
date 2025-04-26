@@ -3,15 +3,9 @@ package com.pharmacy.model;
 import java.io.Serializable;
 import java.util.*;
 
-/**
- * A basic prescription written by a doctor for a patient
- * Written by: Student
- * Date: 11/10/2023
- */
 public class Prescription {
 
-    // Making fields public for simpler access
-    public String rxID;
+    public String prescID;
     public String custID;
     public String docID;
     public String patientName;
@@ -24,7 +18,7 @@ public class Prescription {
     public String[] instructions;
     public int instructionCount;
     public boolean isVerified;
-    public String rxImagePath; // Path to uploaded prescription image
+    public String presImgPath; // Path to uploaded prescription image
     public String verifyComments;
     
     // Simple medicine dosage information
@@ -94,7 +88,7 @@ public class Prescription {
     
     // Simple constructor
     public Prescription() {
-        rxID = UUID.randomUUID().toString();
+        prescID = UUID.randomUUID().toString();
         custID = "";
         docID = "";
         patientName = "";
@@ -107,7 +101,7 @@ public class Prescription {
         instructions = new String[10];
         instructionCount = 0;
         isVerified = false;
-        rxImagePath = "";
+        presImgPath = "";
         verifyComments = "";
         medicinesDosage = new MedicineDosage[10];
         medicineDosageCount = 0;
@@ -117,7 +111,7 @@ public class Prescription {
     
     // Constructor with basic information
     public Prescription(String custID, String docID, String diagnosis) {
-        rxID = UUID.randomUUID().toString();
+        prescID = UUID.randomUUID().toString();
         this.custID = custID;
         this.docID = docID;
         patientName = "";
@@ -134,7 +128,7 @@ public class Prescription {
         instructions = new String[10];
         instructionCount = 0;
         isVerified = false;
-        rxImagePath = "";
+        presImgPath = "";
         verifyComments = "";
         medicinesDosage = new MedicineDosage[10];
         medicineDosageCount = 0;
@@ -144,11 +138,11 @@ public class Prescription {
     
     // Getter and setter methods
     public String getPrescriptionId() {
-        return rxID;
+        return prescID;
     }
     
     public void setPrescriptionId(String id) {
-        this.rxID = id;
+        this.prescID = id;
     }
     
     public String getCustomerId() {
@@ -214,13 +208,13 @@ public class Prescription {
     public void setVerified(boolean verified) {
         this.isVerified = verified;
     }
-    
+
     public String getImagePath() {
-        return rxImagePath;
+        return presImgPath;
     }
-    
+
     public void setImagePath(String path) {
-        this.rxImagePath = path;
+        this.presImgPath = path;
     }
     
     public String getVerificationComments() {
@@ -230,7 +224,7 @@ public class Prescription {
     public void setVerificationComments(String comments) {
         this.verifyComments = comments;
     }
-    
+
     // Check if prescription is still valid
     public boolean isValid() {
         Date today = new Date();
@@ -394,7 +388,7 @@ public class Prescription {
     // Simple string representation
     public String toString() {
         String output = "";
-        output = output + "Prescription #" + rxID + "\n";
+        output = output + "Prescription #" + prescID + "\n";
         output = output + "Patient: " + patientName + "\n";
         output = output + "Doctor: " + doctorName + "\n";
         output = output + "Diagnosis: " + diagnosis + "\n";

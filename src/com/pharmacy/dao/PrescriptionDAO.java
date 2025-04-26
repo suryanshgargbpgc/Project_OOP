@@ -3,9 +3,6 @@ package com.pharmacy.dao;
 import com.pharmacy.model.Prescription;
 import java.util.List;
 
-/**
- * Data Access Object interface for Prescription entities
- */
 public interface PrescriptionDAO {
     
     /**

@@ -1,27 +1,16 @@
 package com.pharmacy.exception;
 
-/**
- * Exception thrown when there's an error processing payments
- */
 public class PaymentException extends Exception {
     
     private static final long serialVersionUID = 1L;
     
     private String errorCode;
-    
-    /**
-     * Default constructor
-     */
+
     public PaymentException() {
         super("An error occurred during payment processing");
         this.errorCode = "PAYMENT_ERROR";
     }
-    
-    /**
-     * Constructor with error message
-     * 
-     * @param message The error message
-     */
+
     public PaymentException(String message) {
         super(message);
         this.errorCode = "PAYMENT_ERROR";
@@ -29,7 +18,6 @@ public class PaymentException extends Exception {
     
     /**
      * Constructor with error message and error code
-     * 
      * @param message The error message
      * @param errorCode The error code
      */
@@ -40,7 +28,6 @@ public class PaymentException extends Exception {
     
     /**
      * Constructor with error message and cause
-     * 
      * @param message The error message
      * @param cause The cause of the exception
      */
@@ -51,7 +38,6 @@ public class PaymentException extends Exception {
     
     /**
      * Constructor with error message, error code, and cause
-     * 
      * @param message The error message
      * @param errorCode The error code
      * @param cause The cause of the exception
@@ -60,21 +46,11 @@ public class PaymentException extends Exception {
         super(message, cause);
         this.errorCode = errorCode;
     }
-    
-    /**
-     * Get the error code
-     * 
-     * @return The error code
-     */
+
     public String getErrorCode() {
         return errorCode;
     }
-    
-    /**
-     * Set the error code
-     * 
-     * @param errorCode The error code
-     */
+
     public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
     }

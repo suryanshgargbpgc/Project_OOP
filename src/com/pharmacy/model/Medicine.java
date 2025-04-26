@@ -1,12 +1,7 @@
 package com.pharmacy.model;
 
-/**
- * Medicine class for storing medicine information
- * Author: Student
- * Date: 11/10/2023
- */
 public class Medicine {
-    // All variables are public for easy access
+
     public String medID;
     public String medName;
     public double medPrice;
@@ -15,7 +10,7 @@ public class Medicine {
     public boolean needsRx;
     public String medCategory;
 
-    // Empty constructor
+
     public Medicine() {
         this.medID = "";
         this.medName = "";
@@ -26,7 +21,6 @@ public class Medicine {
         this.medCategory = "";
     }
     
-    // Basic constructor
     public Medicine(String medID, String medName, double medPrice, boolean needsRx) {
         this.medID = medID;
         this.medName = medName;
@@ -37,9 +31,7 @@ public class Medicine {
         this.medCategory = "";
     }
     
-    // Check if we have medicine
     public boolean checkStock() {
-        // Basic if/else without simplification
         if (medCount > 0) {
             return true;
         } else {
@@ -47,7 +39,6 @@ public class Medicine {
         }
     }
     
-    // Sell some medicine
     public boolean sellMedicine(int num) {
         if (this.medCount >= num) {
             this.medCount = this.medCount - num;
@@ -57,12 +48,10 @@ public class Medicine {
         }
     }
     
-    // Add more medicine
     public void addStock(int num) {
         this.medCount = this.medCount + num;
     }
     
-    // Getters and setters with basic names
     public String getID() {
         return medID;
     }
@@ -125,7 +114,7 @@ public class Medicine {
     public String toString() {
         String output = "";
         output = output + "Medicine: " + medName + " (ID: " + medID + ")\n";
-        output = output + "Price: $" + medPrice + "\n";
+        output = output + "Price: ₹" + medPrice + "\n";
         output = output + "Available: " + medCount + "\n";
         output = output + "Prescription Required: " + needsRx + "\n";
         output = output + "Category: " + medCategory;

@@ -4,8 +4,6 @@ import com.pharmacy.model.Prescription;
 import com.pharmacy.model.Medicine;
 import com.pharmacy.service.PrescriptionService;
 import com.pharmacy.exception.PrescriptionException;
-import com.pharmacy.dao.PrescriptionDAO;
-import com.pharmacy.dao.MedicineDAO;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,9 +25,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     
     private static final Logger logger = Logger.getLogger(PrescriptionServiceImpl.class.getName());
     
-    // Simulated DAO objects (would be injected in a real application)
-    private PrescriptionDAO prescriptionDAO;
-    private MedicineDAO medicineDAO;
+
     
     // In-memory storage for prescriptions (simulated database)
     private Map<String, Prescription> prescriptions = new HashMap<>();
