@@ -195,6 +195,17 @@ public class Order {
     public int getItemCount() {
         return numItems;
     }
+    public int OrderStatus() {
+        if (status.equals("NEW")) {
+            return 0;
+        } else if (status.equals("PAID")) {
+            return 1;
+        } else if (status.equals("SHIPPED")) {
+            return 2;
+        } else if (status.equals("DELIVERED")) {
+            return 3;
+        } return 0;
+    }
     
     // Print order information
     public String toString() {
@@ -217,4 +228,4 @@ public class Order {
         info = info + "Total: $" + total;
         return info;
     }
-} 
+}
