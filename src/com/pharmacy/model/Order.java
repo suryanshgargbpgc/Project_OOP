@@ -195,6 +195,7 @@ public class Order {
     public int getItemCount() {
         return numItems;
     }
+
     public int OrderStatus() {
         if (status.equals("NEW")) {
             return 0;
